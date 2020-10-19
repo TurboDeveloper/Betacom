@@ -1,1 +1,5 @@
 # Betacom
+REPOSITORY CONTENENTE GLI ESERCIZI SVOLTI DURANTE IL CORSO DI 
+FORMAZIONE "Accademy Betacom Full-Stack"
+
+Sancini Tommaso
