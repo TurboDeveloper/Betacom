@@ -28,7 +28,7 @@ import java.util.Scanner;
 
 public class EsLunedi {
 	
-	static Scanner in = new Scanner(System.in);
+	private static Scanner in = new Scanner(System.in);
 	
 	public static void main(String[] args) {
 		System.out.println("Che esercizio vuoi fare? ");
@@ -44,6 +44,7 @@ public class EsLunedi {
 
 	private static void stampa100() {
 		
+		System.out.println("SVOLGIMENTO ESERCIZIO 1");
 		//scrivere i numeri primi minori di 100
 				int i;
 				int num = 0;
@@ -64,7 +65,7 @@ public class EsLunedi {
 	private static void calcolaMCD() {
 		
 		System.out.println();
-		System.out.println("ESERCIZIO 2");
+		System.out.println("SVOLGIMENTO ESERCIZIO 2");
 		int n1 = 0,n2 = 0, mcd = 0;		
 		do {
 			System.out.println("Inserisci un numero positivo:");
@@ -100,7 +101,7 @@ public class EsLunedi {
 	private static void lanciaDadi() {
 		
 		System.out.println();
-		System.out.println("ESERCIZIO 3");
+		System.out.println("SVOLGIMENTO ESERCIZIO 3");
 		
 		Random rand = new Random();
 		int first = 0, rand1 = 0, rand2 = 0, current = 0;
