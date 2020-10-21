@@ -42,14 +42,15 @@ public class EsMercoledi {
 		System.out.println("Che esercizio vuoi fare? ");
 		int n1 = in.nextInt();
 		switch(n1) {
-		case 1: esercizio1();
-				System.out.println("SVOLGIMENTO ESERCIZIO 1");
+		case 1: System.out.println("SVOLGIMENTO ESERCIZIO 1");
+				esercizio1();			
 		break;
-		case 2: esercizio2();
-				System.out.println("SVOLGIMENTO ESERCIZIO 2");
+		case 2: System.out.println("SVOLGIMENTO ESERCIZIO 2");
+				esercizio2();
+				
 		break;
-		default: esercizio3();	
-				 System.out.println("SVOLGIMENTO ESERCIZIO 3");
+		default: System.out.println("SVOLGIMENTO ESERCIZIO 3");
+				 esercizio3();
 		}
 	}
 
