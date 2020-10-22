@@ -1,4 +1,4 @@
-package es.prima.settimana;
+package es.primasettimana;
 /*
  *  ESERCIZIO 1:
  * **************************************************************************************

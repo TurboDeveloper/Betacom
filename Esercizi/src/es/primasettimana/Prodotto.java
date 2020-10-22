@@ -1,4 +1,4 @@
-package es.prima.settimana;
+package es.primasettimana;
 
 public class Prodotto {
 	

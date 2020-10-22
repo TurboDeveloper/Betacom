@@ -1,4 +1,4 @@
-package es.seconda.settimana;
+package es.secondasettimana;
 /* 
  * 1: Creare una collezione che permetta la memorizzazione di Prodotti(cod,nome).
       Dare la possibilità al programma di ricercare il prodotto in base al codice.

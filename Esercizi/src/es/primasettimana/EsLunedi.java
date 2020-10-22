@@ -1,4 +1,4 @@
-package es.prima.settimana;
+package es.primasettimana;
 
 import java.util.Random;
 import java.util.Scanner;

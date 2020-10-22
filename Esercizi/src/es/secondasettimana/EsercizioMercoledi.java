@@ -1,5 +1,7 @@
-package es.seconda.settimana;
+package es.secondasettimana;
 
+import java.util.Iterator;
+import java.util.Random;
 import java.util.Scanner;
 
 /* ESERCIZIO 2 19-10-20
@@ -39,6 +41,38 @@ public class EsercizioMercoledi {
 	private static void esercizio2() {
 		
 		Azienda betacom = new Azienda();
+
+		Random rand = new Random();
+		
+		for(int i = 1; i <= 3; i++) {
+			//System.out.println("GIORNO: " + i);
+			Iterator<Venditore> it = betacom.getVen();
+			while(it.hasNext()) {
+				Venditore ven = it.next();
+				//per ogni giorno del mese, per ogni venditore, per ogni prodotto
+				for(int j = 0; j < 5; j++ ) {	
+					int totProd = 0, cod = 0;
+					//crea tot vendite per ogni tipo(da 0 a 4)
+					totProd = (betacom.getProdotto(j).getPrezzo()) * rand.nextInt(3);
+					cod = betacom.getProdotto(j).getCod();
+					ven.addModule(2, new Modulo(ven.getId(), cod, totProd));
+					ven.addVendita(2, totProd);
+				}
+			}
+		//System.out.println();
+		}
+	
+		Iterator<Venditore> it = betacom.getVen();
+		while(it.hasNext()) {
+			Venditore ven = it.next();
+			System.out.println(ven.toString());
+		}
+	
+		CreaRecordAgente cra = new CreaRecordAgente(betacom.getVen());
+		System.out.println("LETTURA DA FILE");
+		LeggiRecordAgente lra = new LeggiRecordAgente();
 	}
+
+	
 	
 }

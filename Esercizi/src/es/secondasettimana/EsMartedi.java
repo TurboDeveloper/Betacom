@@ -1,4 +1,4 @@
-package es.seconda.settimana;
+package es.secondasettimana;
 
 import java.util.ArrayList;
 import java.util.Collections;

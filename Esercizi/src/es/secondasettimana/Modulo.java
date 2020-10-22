@@ -1,7 +1,12 @@
-package es.seconda.settimana;
+package es.secondasettimana;
 
 public class Modulo {
 	
+	@Override
+	public String toString() {
+		return "Modulo [codVen=" + codVen + ", codProd=" + codProd + ", tot=" + tot + "]";
+	}
+
 	private int codVen;
 	private int codProd;
 	private int tot;

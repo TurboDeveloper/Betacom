@@ -1,4 +1,4 @@
-package es.seconda.settimana;
+package es.secondasettimana;
 
 public class Carta {
 	
