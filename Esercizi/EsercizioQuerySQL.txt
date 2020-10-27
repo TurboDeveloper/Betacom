@@ -1,0 +1,216 @@
+SELEZIONI SEMPLICI
+
+SQL> select cognome
+  2  from cliente;
+
+SQL> select nome
+  2  from cliente;
+
+SQL> select cognome, nome
+  2  from cliente;
+
+SQL> select cognome,nome,citta
+  2  from cliente;
+
+SQL> select * from cliente;
+--------------------------------------------------------------
+SELEZIONI CON PROIEZIONI
+1) Scrivere la query che restituisce nome e cognome di chi guadagna più di 3000;
+
+	SQL> select cognome, nome
+ 	 2  from cliente
+	 3  where salario > 3000;
+
+2) Scrivere la query che restituisce cognome e nome dei clienti che abitano a Rimini;
+
+	SQL> select cognome, nome
+ 	 2  from cliente
+  	 3  where citta = 'Rimini';
+
+3) Scrivere la query che restituisce cognome e nome dei 
+clienti che abitano a Rimini e guadagnano più di 3000;
+
+	SQL> select cognome,nome
+ 	 2  from cliente
+ 	 3  where citta = 'Rimini' and salario >= 3000;
+
+4) Scrivere la query che restituisce cognome, nome e salario 
+dei clienti che hanno età compresa fra 20 e 35 anni (estremi compresi);
+
+	SQL> select cognome, nome, salario
+ 	 2  from clienti
+ 	 3  where eta between 20 and 35;
+
+5) Scrivere la query che restituisce cognome, nome e salario 
+dei clienti che risiedono a Rimini e hanno meno di 20 anni o più di 30.
+
+	SQL> select cognome, nome, salario
+ 	 2  from cliente
+ 	 3  where citta = 'Rimini' and eta not between 20 and 30;
+--------------------------------------------------------------
+FUNZONI DI INSIEME
+
+1) Scrivere la query che restituisce il salario massimo;
+
+	SQL> select max(salario)
+	  2  from cliente;
+
+2) Scrivere la query che restituisce l’età media;
+
+	SQL> select avg(eta)
+ 	 2  from cliente;
+
+3) Scrivere la query che restituisce il salario massimo dei clienti che abitano a Rimini;
+
+	SQL> select max(salario)
+ 	 2  from cliente
+ 	 3  where citta = 'Rimini';
+
+4) Scrivere la query che restituisce il salario massimo dei clienti con età compresa tra 25 e 40 anni
+(estremi esclusi);
+
+	SQL> select max(salario)
+ 	 2  from cliente
+  	 3  where eta between 24 and 41;
+
+5) Scrivere la query che restituisce il salario minimo dei clienti residenti a Rimini con età
+compresa tra 25 e 40 anni (estremi inclusi);
+
+	SQL> select min(salario)
+ 	 2  from cliente
+  	 3  where eta between 25 and 40;
+
+6) Scrivere la query che restituisce il numero di clienti che hanno età minore di 25 anni o
+maggiore di 35.
+
+	SQL> select count(*)
+  	 2  from cliente
+  	 3  where eta not between 25 and 35;
+
+--------------------------------------------------------------
+FUNZIONI AGGREGAZIONE
+
+1) Scrivere la query che restituisce l’età media della tabella;
+
+	SQL> select citta, avg(eta)
+  	 2  from cliente;
+
+2) Scrivere la query che restituisce l’età media per ogni città;
+
+	SQL> select citta, avg(eta)
+	  2  from cliente
+	  3  group by citta;
+
+3) Scrivere la query che restituisce il salario massimo dei riminesi;
+
+	SQL> select max(salario)
+ 	 2  from cliente
+  	 3  where citta = 'Rimini';
+
+4) Scrivere la query che, per ogni città, restituisce il nome della città, il numero di abitanti e la loro
+età media.
+
+	SQL> select citta, count(*) as "NUMERO ABITANTI", avg(eta)
+ 	 2  from cliente
+  	 3  group by citta;
+
+5) Scrivere la query che, per ogni città, restituisce il nome della città e il numero di abitanti
+ordinando il risultato per numero di abitanti.
+
+	SQL> select citta, count(*) as "NUMERO ABITANTI"
+ 	 2  from cliente
+ 	 3  group by citta
+ 	 4 order by count(*);
+
+--------------------------------------------------------------
+HAVING
+1) Scrivere la query che restituisce città ed età media delle città la cui età media sia maggiore di 30 anni;
+
+SQL> select citta, avg(eta) as "ETA_MEDIA"
+  2  from cliente
+  3  group by citta
+  4  having avg(eta) >= 30;
+
+2) Scrivere la query che restituisce città e stipendio massimo di ogni città la cui età media sia inferiore a 35 anni;
+
+SQL> select citta, max(salario), avg(eta)
+  2  from cliente
+  3  group by citta
+  4* having avg(eta) <= 35
+
+3) Ritornare città, stipendio medio ed età media di tutti i clienti che hanno età compresa fra 20 e 40 anni purché siano almeno 2.
+
+	SQL> select citta, avg(salario), avg(eta)
+ 	 2  from cliente
+	 3  where eta between 20 and 40
+	 4  group by citta
+	 5 having count(*) >= 2
+
+--------------------------------------------------------------
+QUERY MULTIPLE
+
+Data la tabella:
+Clienti:=<Cod_cli,Cognome, Nome, Citta, Salario, Eta>
+Prenot:=<Cod_cli, Cod_alb, Camera, Giorni, Acconto >
+Alberghi:=<Cod_alb, Nome, Citta >
+
+1) Ritornare tutti i dati dei clienti che hanno età uguale all’età minima della tabella;
+
+	SQL> select *
+	  2  from cliente
+	  3  where eta > (select min(eta) from cliente);
+
+2) Ritornare tutti i dati dei clienti che guadagnano più della media;
+
+	SQL> select *
+	  2  from cliente
+	  3* where salario > (select avg(salario) from cliente)
+
+3) Ritornare cognome nome e salario dei clienti che abitano in città che contengono almeno 2 clienti;
+
+	SQL> select cognome, nome, salario
+	  2  from cliente
+	  3* where citta in (select citta from cliente group by citta having count(*) >= 2)
+
+4) Ritornare tutti i dati dei clienti che abitano nelle città in cui l’età media è inferiore all’età media di tutta la tabella;
+
+	SQL> select *
+	  2  from cliente
+	  3  where citta in (select citta from cliente
+	  4       group by citta
+	  5*      having avg(eta) < (select avg(eta) from cliente))
+
+5) Ritornare tutti i dati dei clienti che hanno almeno 30 anni e che hanno una prenotazione per la camera 25 o per la camera 18;
+
+	SQL> select *
+ 	 2  from cliente
+ 	 3  where eta > 30 and id in (select cliente.id from cliente, prenot
+ 	 4* where cliente.id = prenot.id)
+
+6) Ritornare tutti i dati dei clienti che hanno versato un acconto superiore alla media.
+
+	SQL> select clienti.*
+ 	 2  from clienti,prenot
+ 	 3  where clienti.id = prenot.id
+	 4* and prenot.acconto > (select avg(acconto) from prenot)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

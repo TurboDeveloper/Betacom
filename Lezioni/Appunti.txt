@@ -1,0 +1,842 @@
+CLASSE INTERNA
+se una classe viene utilizzata solo in una classe e non esternamente, allora si crea una classe interna(all interno della classe che la utilizza metto una definizione privata di classe)
+CLASSE INTERNA ANONIMA
+lo stesso discorso di prima ma nella classe esterna si chama il new sull interfaccia(bottone.addActionListener(new ActionListener())), dunque evito di dichiarare la classe perche viene creata un istanza della classe anonima che implenta l interfaccia.
+ADAPTER 
+adatta i metodi da implementare in modo tale che la classe che implementa l interfaccia non debba implementare tutti i metodi
+FACADE(strutturali)
+dp strutturale serve per organizzare i metedi dei business componet in facciate in modo tale che i controller debbano interagire solo con le poche facciate e non i molteplici businnes componet
+	1 creare bs comp
+BUILDER(creazionale)
+nasconde l implementazione dell oggetto, più restrittivo rispetto alla factory
+utile perche le proprietà sei sicuro di averle incapsulate e l oggetto viene creatocon caratteristiche predefinite 
+metodi di creazione : Product, AbstractBuilder(costruisce e definisce le parti del prodotto) ConcreteBuilder(assembla), Director gestiste le istanze dei prodotti che devono essere istanziati
+--------------------------------------------------------------
+pattern creazionale
+LAZY INIZIALIZATION
+si istanzia l oggetto, lo si pozina in una struttura dati in modo che poi si richiama senza inizializzarlo di nuovo.
+
+-------------------------------------------------------------------
+METODOLOGIA AGILE
+---------------------------------------------------------------
+WATERFALL(cascata)
+V model
+Plan       Analisi      design       build        test        deploy
+-plan : high level technial design, costi, punti critici
+- analisi : casi d'uso e diagramma di sequenza
+-design : gli sviluppatori prendono i documenti di specifica e bisogna disegnare il diagrammma delle classi
+-build  
+	a)preparazione del componet test
+		quali metodi vanno testati, quali dati servono
+	b)build effettivo
+	c)esecuzione component test
+		junit: verifico ogni omponente
+-test
+	-esecuzione assemly test
+	- system test
+	-performace test
+	- uat(user accepted test): conformità a diversi standard
+
+---------------------------------------
+
+Che cos è il testing? è un modo per controllare i requisiti e constatare che sono state soddisfatte le aspettative.
+V-MODEL : ogni cosa a sinistra vinee testata a destra, ogni fase deve essere conclusa prima di iniziare la successiva
+assembly test verifica il desegno dettagliato
+component test- verifica i dettaglia 
+AGILE
+non ci sono più ruoli precisi all interno del progetto
+sprint: modo con la quale si chiama il rilascio dei progetti
+
+COS'E UNA COLLECTION
+Una struttura dati che serve per contenere riferimenti ad altri oggetti(gli array possono contenere oggetti e dati primitivi)
+Gerarchia delle collezioni
+--------------------------------INTERFACE
+Iterable(fornisce metodi iterator)
+Collection(caratteristiche di base come:
+List 		Set 		Queue 	                   Map
+------------------------------------ CLASSI
+List:simili ad array
+- ArrayList - > ArrayList<Integer>  vantaggio di mettere il tipo: controllo negli insermenti, e recupero(evita casting) FIFO
+- LinkedList -> LinkedList: doppia coda (posso inserire da testa e estrarre da coda, e viceversa) permette tanto ma pesante
+- Vector/Stack -> simile a arraylist LIFO
+
+COSA VUOL DIRE CHE SONO DINAMICI? 
+dimensione:n elementi che vado ad aggiungere(.size)
+Capacità: celle preallocate per definire una collection(se non specifico nulla in fase di inizializzazione è 10, una volta superato si cancella la vecchia lista e se ne crea una nuova con capacità doppia) occhio alla memoria (!!LA CAPACITà NON SI PUò DIMINUIRE)
+
+
+
+!! ArrayList estende AbstractArrayList
+IMPLEMENTA 
+- List
+- RandomAccess -> tecnica che viene utilizzata in prog, per accedere in maniara diretta agli indici (tramite un sistema binario)
+- Serializable -> prendere tutto l' oggetto e lo salva in memoria
+- Clonable -> danno la possibilità di utilizzare il dp "Prototype"
+MIGLIORE perche simula l'array, dunque veloce , grazie a RANDOM ACCESS
+
+METODI
+
+lista.trimToSize() serve per ottimizzare la cacità una volta finito l'inserimento
+clear() pulisce tutto
+isEmpty()
+set(int index,Object)
+remove(Object) , remove(index)
+ensureCapacity()
+get(int)
+indexOf(Object)
+LastIndexOf(Obj)
+addAll(lista2) // mette in coda
+lista.toArray()
+contains(obj) 
+
+COMPARATOR
+classe che implementa Comparator<Obj>
+si utilizza il suo metodo compare(obj o1, obj o2) se di overraida il metodo 
+in modo da gestire il modo con cui si vuole ordinare l'array con oggetti complessi
+return se positivo o1 maggiore di o2, negativo il contrario, 0 se uguali
+(si puo usare anche con gli array)
+
+INTERNO
+comparazione in fase di avviamento
+ESTERNO
+di volta in volta posso scegliere come organizzare i dati
+
+
+!!LINKEDLIST
+ESTENDE AbstractSequentialList
+IMPLEMENTA List, Deque, Clonable, Serializable
+molto piu lenta di ArrayList(no randonAccess)
+
+			Head 				Tail
+METODI	       throwExcTE   !throwExcNTE   	throwExc     !throwExc
+insert		addFirst     offerFirst        addLast       offerLast
+remove         removeFirst   pollFirst         removeLast    pollLast
+examine         getFirst      peekFirst          getLast       peekLast
+Iterator (next e previous)
+ListIterator<tipo> iterator = linkedlist.listIterator(posizione da cui partire, 
+	0 sottointeso, da ultimo: linkedlist.size(), oppure indice es:40);
+DescendingIterator
+
+
+CONFRONTO CON QUEUE E STACK
+QUEUE(coda)FIFO
+METODI				Deque
+add			TE	addLast
+offer		 	NTE	offerLast
+remove 			TE	removeFirst
+poll 			NTE	pollFirst
+element 		TE	getFirst
+peek          		NTE	peekFirst
+
+STACK(Pila/LIFO)*	 Deque
+push			addFirst
+pop			removeFirst
+peek			getFirst
+*le eccezione devono essere sempre gestite
+
+
+!!VECTOR  estende AbstractArrayList
+IMPLEMENTA 
+- List
+- RandomAccess -> tecnica che viene utilizzata in prog, per accedere in maniara diretta agli indici (tramite un sistema binario)
+- Serializable -> prendere tutto l' oggetto e lo salva in memoria
+- Clonable -> danno la possibilità di utilizzare il dp "Prototype"
+simile a arrayList
+THREADSAFE : garantiscono un sistema di gestione di sincronizzazione dei thread
+t1			t2
+	Arraylist
+0			0
+1			1
+2			3
+3			4
+4			1000
+5
+6
+1000
+problema:concorrenza dei thread
+rischio di stallo
+SINCRONIZZARE I THREAD: in questo caso funziona in modo sequenziale, prima finisce uno e poi il sistema operativo permette operazioni all altro
+
+- - - 
+Stack estende Vector
+--------------------------------------------------------
+
+SET:dati unici all'interno
+-HashSet, LinkedHashSet, TreeSet, EnumSet
+
+NON PREVEDE DATI DUPLICATI
+
+HASHSET<>()
+ESTENDE AbstractSet
+IMPLEMENTA Set, Clonable, Seriaziable
+
+CONCURRENTSKIPLISTSET(Versione sincronizzata del treeset)
+
+- - - - - - - - - -  -
+LINKEDHASHSET<>()
+ESTENDE HASHSET
+IMPLEMENTA Set, Clonable, Seriaziable
+
+Mantiene l'ordine di inserimento dati e offre più metodi
+- - - - - - - - - - -  -
+TREESET
+primo valore:Route
+Se il valore da inserire è minore della route allora va alla sinistra della route, destra altrimenti
+Treeset implementa NavigableSet(mantiene i dati perfettamente ordinati all interno della struttura)
+
+METODI
+set.headSet(valore) -> restituisce tutti i valori minori di 50
+set.tailSet(valore) -> restituisce tutti i valori maggiori di 50
+subSet(x, y)
+
+- - - - - - - - - - - - 
+EnumSet
+
+--------------------------------------------------------------
+Queue: logica di inserimento della coda
+-LinkedList, PriorityQueue
+INTERFACCIA,  FIFO
+
+Implementata :
+Queue<String> coda = new PriorityQueue<String>();
+Queue<String> coda = new LinkedList<String>();
+
+THREADSAFE -> Queue<String> coda = new PriorityBlockingQueue<String>();
+PriorityQueue non mantiene i dati in base all inserimento, ma è la chiave di hashing che da la posizione nella struttura,
+dunque io posso organizzare i dati come voglio io(come nei comparatori)
+
+--------------------------------------------
+Map:Capacità base  16
+-HashMap, TreeMap, LinkedHasMap, HashTable
+
+chiave(user_n)		valore
+mimmo			dati_sessione
+luigi
+3
+4
+5			oggetto
+
+HASHMAP estende map
+capacità default 16
+veloce ma non mi interessa l ordine
+
+LINKEDHASHMAP
+mantiene l ordine delle chiavi come le ho inserite
+
+TREMAP
+chiavi perfettamente ordinate
+
+HASHTABLE
+Struttura sincronizzata delle mappe
+
+METODI
+containsKey(chiave)
+put(chiave, oggetto)
+get(chiave)
+keySet() -> set delle chiavi
+remove(chiave)
+size()
+values() ->  Collection dei valori
+isEmpty()
+clear()
+containsValue(oggetto)
+--------------------------------------------
+
+
+COLLECTION
+METODO
+.min(lista)
+.max(lisat)
+.shuffle(lista) // mischia
+.binarySearch(lista)
+.sort(lista, Collection.ReverseOrder());
+.frequency(lista, elemento) ->
+.copy(l_destianzione, lista_riferimento)
+.addAll(l1, l2)
+.fill(lista1, elemento)
+.disjoint(list1, list2); -> ritorna true se disgiunte
+
+
+---------------------------------------------------------------
+21/10/2020
+
+SERIALIZZAZIONE
+ObjectInputStream
+ObjectOutputStream
+interfacce per gestire il processo di serializzazione
+rendono i dati illegibili a meno di deserializzazione
+
+modificatore: TRANSIENT
+collegato a processo seriazzazione che scrive l oggetto intero
+se non voglio scrivere un campo di istanza allora metto transient su campo istanza.
+
+serialVersionUID : un timbro di riconoscimento, utile per il processo di deserializzazione
+
+
+-------------------------------------------------------------------------------------
+DECOLLECTOR -> DP STRUTTURALE
+ad una base si aggiungono a runtime dei decoratori
+
+COMPOSITE -> DP STRUTTURALE
+organizzare la struttura ad albero per semplificare la gestione delle foglie
+
+BRIDGE -> DP STRUTTURALE
+permette di separare in maniera netta l astrazione della classe dalla sua classe astratto interfaccia
+separa l ereditarietà dall evoluzione di astrazione
+
+QUALE PROBLEMA DI TROPPA EREDITARIETA'
+i progetti subiscono modifiche continue, componenti con troppa dipendenza creano probelmi a cascata
+
+PROXY -> DP STRUTTURALE
+quando ci sono metodi pesanti che richiedono tanto tempo PROXY rende possibile istanziare solo quando si chiama il metodo
+
+MEMENTO -> COMPORTAMENTALE
+mantenere lo stato degli oggetti che vengono istanziati
+COMPOSTO DA:
+Memento : oggetto da salvare
+Originator: memorizza gli stati
+CareTaker : ripristina gli stati
+
+LISTENER
+fornisce risultati in base ad eventi
+
+
+-------------------------------------------------
+26/10/2020
+DATABASE RELAZIONALI
+DMBS
+basato su entità che comunicano tramite relazioni(no duplicati)
+RDBMS
+def: (conforme)segue le 12 regole definite da codd
+meccanismi di INTEGRITA' REFERENZIALE
+controllo su parser(strumento che analizza e compila le query) che verifica l integrità dei 
+dati su tutti i punti di vista
+BLOCCA QUALSIASI VIOLAZIONE DI VINCOLI
+COME SI CREA UN DB RELAZIONALE?
+FASI DI NOMRMALIZZAZIONE (sono 5)
+1 -> FASE ATOMICA : dividere i dati per argomenti(nelle stesse tabelle) in modo 
+			da non avere duplicati
+2 -> DEFINIZIONE RELAZIONE TRA TABELLE : inserire campo fondamentale (PRIMARY KEY)
+			pk è un vincolo, serve per creare relazioni come: 
+		tipi di relazioni con pk: 1 a 1, 1 a molti
+		CARATTERISTICHE PK
+			- UNICA(inserendo pk si genera vincolo Unique)
+			- NOT NULL
+			- AUTOMATICAMENTE INDICIZZATA
+-------------------------------------------------------------
+1 A MOLTI
+Un record della prima tabella è collegat a tanti della seconda,
+un record della seconda è collegato a uno solo della prima. (cliente -> ordini)
+
+RAGIONAMENTO
+prendo la pk del cliente e la ripeto negli ordini
+cliente			ordine
+idCliente	  idOrdine   IdCliente
+
+-----------------------------------------------------------------
+FOREING KEY(chiave esterna)
+punto di legame per definire una relazione uno a molti
+la pk di clienti prende il nome di foreing key
+-----------------------------------------------------------------------
+RELAZIONE MOLTI A MOLTI
+creo tabella aggiuntiva (ordine -> registrazione -> prodotto)
+
+ordine			registrazione		Prodotto
+idOrdine        |   idReg  idOrd  idProd     |  idProd
+
+
+  1  create table iscrizione(
+  2  id_iscrizione int,
+  3  id_corso int,
+  4  id_corsista int,
+  5  constraint p_idiscrizione primary key(id_iscrizione),
+  6  constraint f_idcorso foreign key(id_corso) references corso(id_corso),
+  7  constraint f_idcorsista foreign key(id_corsista) references corsista(id_corsista),
+  8* constraint u_controllo unique(id_corso, id_corsista))
+--------------------------------------------------------------------------------------------
+RELAZIONI UNO A UNO
+associare due pk tra loroquesy oer creare relazioen unoa uno
+
+SQL> create table impiegato(
+  2  id_imp int,
+  3  nome_imp varchar2(30),
+  4  p_idimp primary key(id_imp));
+
+Tabella creata.
+
+SQL> create table dati_aziendali(
+  2  id_imp int primary key references impiegato(id_imp),
+  3  data_assunzione date);
+
+create table pagamenti(
+id_prog int primary key references progetto(id_prog),
+costo int,
+data_pagamento date)
+/
+--------------------
+c
+3 -> SCORPORARE IN NUOVE ENTITA'
+	se puoi dividere un entita in altre entita si può fare
+	
+RAGIONAMENTO:
+basta che ci sia qualcosa che identifichi qualcosaltro è necessario fare un latra entità
+ma bisogna classificare le entita in base all appartenenza(citta e cap di una persona
+sono dati anagrafici, non entità citta)
+
+
+
+INDICIZZATA!!
+Indice = oggetto creato sul db
+Scopo -> entry ordinato per una o più colonne in modo da trovare in modo efficiente il dato
+
+id	nome	cognome		INDEX TABLE (in memoria PGA)
+1				1	
+2				2
+3				3
+5				4
+6
+
+Select * from Cliente, Ordine
+where cliente.idcliente = ordine.idcliente;
+
+CHE DIFFERENZA?
+da uno leggiamo da disco, in una leggiamo da unità di memoria
+
+in una tabella i campi candidati all indicizzazione possono dipendere dalla query:
+se un campo è parametro di una query fatto 200 volte al minuto allora indicizzazione utile
+
+
+OLTP				
+db generico
+usato sia per interrogazioni che per modiica
+NON SI ESAGERA CON GLI INDICI -> se modifico un dato si deve andare a ricreare le indextable
+a livello di query bene, ma peso a livello di modifiche(tante modelle da ridefinire)	
+
+SCHEMA:
+Esiste tabella centrale collegata con relazioni ad altre tabelle(NO RELAZIONI MULTIPLE)
+
+
+OLAP (Datawarehouse)
+PBOLAP tabelle costruite su dati tridimentisionali
+SOLO INTERROGATO (quasi tutti i campi sono indicizzati, perche non modifico i dati)
+Strumento di analisi
+
+SCHEMA
+Esistono "DATAMARK" e una centrale "TABELLA DEI FATTI"
+
+
+TRANSAZIONE IN DB RELAZIONALE
+E' una serie di operazioni dml che rimangono in unità di memoria (rollback segment) finche non si decide
+di concludere l operazione tramite un "commit" oppure annullare tutto
+
+
+COMANDI DML(data manipolation language)
+1)insert -> 10 righe prima di db si salvano su unità mem Rollback Segment
+		a)commit: chiude svuota e salva 	b)rollback:chiude svuota cancella
+2)update -> update tabella set 
+		campo = valore | espressione | (subquery)
+		campo = valore | espressione | (subquery)
+		where cond;
+3)delede -> abilita il rolback -> delete from tabella where filter;
+
+DIZIONARIO DATI
+Mantiene tutti i dati che noi scriviamo, in modo da tenere uno storico 
+
+COMANDI DDL
+!!!AUTOCOMMITTANTI!!! ->prima di creare un oggeto il comando deve concludere la transazioen
+Creazione dati
+1) create table -> commit
+
+
+DCL(permessi)
+TCL(transaction)
+DQL(data query l)
+
+CRUD
+
+ORACLE SQL
+-----------------------------------
+/    : esegue l ultimo comando nel buffer
+l    : dice quale comando ce nel buffer
+column : formatta le colonne della tabella
+.      :mi cancella la query sbagliata
+
+----------------------------------
+SQL> create table prova(i int);
+
+Tabella creata.
+
+SQL> save C:\Users\betacom\Desktop\Accademy\SQLquery\ddl.sql
+Creato file C:\Users\betacom\Desktop\Accademy\SQLquery\ddl.sql
+SQL> drop table prova cascade constraints;
+
+Tabella eliminata.
+
+SQL> @ C:\Users\betacom\Desktop\Accademy\SQLquery\ddl.sql
+
+Tabella creata.
+
+
+ABBIAMO SALVATO SU FILE UNA QUERY E CON LA CHIOCCIOLA ABBIAMO CARICATO LE QUERY CONTENUTE IN 
+UN FILE ALL INTERNO DEL PROMPT
+--------------------------------------------------------------------------
+
+TIPI DI DATI DI SQL
+ 
+Stringa
+
+char			lung. fissa	(43 char) significa 43 caratteri non B 		2000B	1char = 1B
+varchar	 		lung. variabile  2000
+varchar2 		lung. variabile  4000 (prende la dimensione in base a quanti caratteri inserisco)
+long varchar -> 	max 2GB ( dim variabile) (inseribile solo una volta)
+clob -> 		aggiornamento di long varchar (4GB)
+bclob -> 		4GB possibilità di scrivere con caratteri multi-Byte
+
+diff char/varchar
+char ottimizza le prestazioni, ma non ottimizza le locazioni di spazio char(5) inserisco 201 = 201_ _
+varchar ottimizza lo spazio, si deve fare valutazine dinamica della stringa
+-------------------------------------------------------------------------
+number(5) -> 99999 : 	5 precizione
+number(5,2) -> 999.99 : 2 scala
+
+int/smallint/integer -> number(38)
+
+double
+
+float
+---------------------------------- 
+
+Date
+ing :"2000-JEN-01"
+ita :"12-GEN-2000"
+alter system/session set nls_date_language = 'AMERICAN';
+timestap(6) default 6, max 9 
+-----------------------------------------
+Binari
+
+raw  		-> 2000B
+
+long raw 	-> 2GB
+		
+blob  		->  parte da 4GB  a 128 TB
+sqlloader utility che permette di convertire un file -> bin
+-------------------------------------------------------------
+Anagrafica
+
+create table nome(
+campo tipo constraint,
+campo tipo constraint,
+campo tipo constraint) tablespace Anagrafica;
+
+tblspc default: User01.dbf
+
+tablespace è un datafile (.dbf) che contiene gli oggetti che noi creaiamo all interno del db
+
+create tablespace Nome
+datafile ........
+.........
+;
+
+Schema -> turbo
+In oracle unità logica che suddivide in oggetti
+uno schema con nome 
+è suddiviso in oggetti
+table	view	sequence	procedure	trigger		functions
+
+create table  turbo.impiegato tablespace nome;
+select * from turbo.impiegato
+
+tutto regolato da permessi
+
+-----------------------------------------------------
+
+se vuoi copiare lo schema ma non i dati si fa
+create table nome as select * from corso where 1 = 2;
+
+CONSTRAINT SULLO SCHEMA
+
+primary key
+come:
+1) id int primary key
+2)id int,
+......
+....,
+constraint p_id primary (id)); //migliore
+- - - - - - - - - - - -- - - - - - - - - - - - 
+foreign key
+come:
+1)constraint f_nome foreign key(campo) references tab(campo)
+
+2)nome tipo foreign key(campo) references tab(campo)
+on delete cascade
+// quando volgio cancellare i record collegati in una tablla quando elimino un suo dato
+--------------------------------------------------------
+check
+si impostano condizioni sul campo, ma condizioni molto semplici(es. data inizio < data fine)
+------------------------------------------------------------
+unique
+constraint u_nome unique(campo, campo2)
+-------------------------------
+not null
+
+!!!!!!!!
+'' -> stringa vuota DIVERSA null
+-------------------------------------------------
+default
+nome tipo default val
+!! per inserire il valore di default non devo nemmeno inserire null!!
+
+ create table esempiodefault (
+   id int,
+   livello number(1) default 5)
+
+
+NO :insert into esempiodefault values(1,null);
+SI :insert into esempiodefault(id) values(3);
+
+----------------------------------------------
+DDL (auto commit)
+create
+drop tipo nome;
+drop table nome cascade constraint; (elimina anche tabelle collegate)
+alter table nome ......; -> modifica contenuto tabella
+rename nomeV to nome
+truncate table nome / delete from nomeT -> elimina i contenuti della tabella
+	DDL		DML
+comment -> commenti
+
+ROW LEVEL BLOCK
+su transazioni concorrenti, gli altri utenti non possono modificare i dati finche 
+una transazione non viene chiusa
+
+------------------------------------------
+come funziona alter table
+
+alter table nomeT add(nomec tipo, costraint tipo, ........)
+modify(nomec tipo, constraint tipo,)
+drop nomec / constraint :elimina una cosa per volta
+
+ESEMPI
+1) alter table prova rename column note to nota;
+2) alter table prova modify(nota not null);
+3) rename prova to prove;
+4) alter table prove add(note varchar2(100)) modify(nota varchar2(50));
+5) alter table prova add(constraint p_i primary key(i));
+6) alter table prove drop primary key;
+7) alter table prove disable primary key
+8) alter table prove enable primary key
+---------------------------------------------
+comment
+
+1) comment on table prove is 'MIMMO CE';
+2) COMMENT ON COLUMN PROVE.NOTA IS 'ciaparat colonna';
+3)desc user_tab_comments
+  select comments from user_tab_comments where table_name = 'PROVE';
+
+--------------------------------------------------
+LISTE
+Gerarchie:
+DBA [dba_tables]  : vedo oggetti di tutti gli utenti
+ALL [all_tables]  : vedo tutti gli oggetti che mi appartengono e gli ogetti su cui ho permessi di lettura
+USER [user_tables]: vedo solo oggetti che mi appartengono
+
+user_views
+user_procedures
+user_triggers
+user_synonyms
+---------------------------------------------------
+SEQUENZE
+è un oggetto che viene creato che permette di creare in automatico la progressione numerica degli id
+e vantaggio che valore l posso usare dove voglio(non solo come pk)
+UTILILE PER UTILIZZARE SQL DA JAVA
+(non possono descrementare, partono da almeno 1)
+presenta psudocolonne
+
+create sequence idseq_seq
+1) insert into u_sequenza values(idseq_seq.nextval,'max');
+2) insert into u_sequenza values(idseq_seq.nextval,'paolo');
+3) select * from u_sequenza;
+ID NOME
+---------- -----------
+         1 max
+         2 paolo
+         3 paola
+
+
+TABELLA 'DUAL'
+tabella di oracle per testare le funzioni
+si adatta a qualsiasi funzionalita
+es. select 5+5 from dual;
+es. select user from dual;
+-------------------------------------------------------
+PL/SQL : 'procedure language sql'
+
+linguaggio proprietario di oracle
+utilizzato per scrivere ROUTINE:
+1) procedure
+2) trigger
+3) funcion
+
+- - - - - - - ----------------------------------------------
+PROCEDURE
+se voglio esegure func sql ma voglio mettere delle condizioni, o eseguirle in modo
+iterativo servono le procedure
+vengono riciamate sql cmd -> execute nome(..) (da qualsiasi lng di prog -> {call nome(...)})
+
+-----------------------------------------------------------------------------
+TRIGGER
+componenti che partono in base ad eventi(es.listener)
+before >	corpo eseguito prima che l istruzione DML modifichi idati
+after > 	contrario
+instead of > 	corpo del trigger sostituisce istr DML
+
+QUANTE VOLTE ESEGUO TRIGGER
+statement > corpo eseguito una sola volta per evento
+riga > corpo eseguino n volte in base a quante righe sono modificate dall istr DML
+
+
+OPERATORI DI CORRELAZIONE
+riferimenti particolari che fanno riferimento ai valori(vecchi nuovi) 
+:new  -> prende il valore dopo esecuzione
+:old  -> prende il valore prima dell esecuzione del trigger
+
+
+select ... into ... -> PL/SQL = CURSORE
+
+ESEMPIO
+SQL> create or replace trigger generaseq
+  2  before insert on u_sequenza
+  3  for each row
+  4  begin
+  5  select idseq_seq.nextval into :new.id
+  6  from dual;
+  7  end;
+  8  /
+
+Trigger creato.
+
+----------------------------------------
+FUNCTION
+ritorna un valore
+vs procedure faccio -> select calcolo from tab ;
+chiamata dentro la query
+
+(on replace -> sostituisce l ogget sistente)
+
+----------------------------------------------------------------
+
+
+QUERY
+3 fasi
+1) analisi
+2) compilazione
+3) fetch
+
+[NB : il parser compila una sola volta la query]
+
+costruzione query:
+select campo[default: all]
+from tab
+where cond
+order by
+
+PER VEDERE TEMPO > set timing on
+NON VOGLIO DUPLICATI > distinct
+TUTTI I CAMPI > *
+
+WHERE:
+- campo = val
+- campo is null [nell update ci va =]
+- not
+- and
+- or
+- xor
+- != / <> [diverso]
+- =
+- betweem val1 and val2 [estremi compresi]
+- in('Milano','Torino','Roma','Treviso') equivale campo = 'Milano' or 'Torino ...
+- like 'A%' inizia con a e contiene n caratteri qualsiasi
+- like 'E%RA_' inizia con e
+- exists(subquery) -> il parser prima di compilare controlla se la subquery ritorna delle righe
+- cond any(tab) -> se valore è cond di ogni valore contenuto in tab
+- campo1 || ' ' || campo2   > concatena 
+
+FUNZIONI DI RAGGRUPPAMENTO
+- max
+- min
+- avg
+- stddev
+- variance
+- count
+- sum
+
+HAVING -> pone delle condioni come where ma sul modo di raggruppare
+
+EQUIJOIN
+permette di selezionare i record correlati dall esecuzione di una select
+regola:non interessa l ordine dei campi
+
+OTTIMA PER ORACLE
+select nome_imp, nome_rep
+from impiegato2, reparto
+where
+impiegato2.id_rep = reparto.id_rep
+
+CLASSICA
+select impiegato2.nome_imp,reparto.nome_rep
+from reparto
+inner join impiegato2 on(impiegato2.id_rep = reparto.id_rep)
+-----
+SE CAMPI COLLEGAMENTO HANNO STESSO NOME
+
+INNER JOIN:
+select impiegato2.nome_imp,reparto.nome_rep
+from reparto
+inner join impiegato2 using(id_rep)
+
+o
+NATURAL JOIN:
+select impiegato2.nome_imp,reparto.nome_rep
+from reparto
+natural join impiegato2
+------------------------------------------------------------
+OUTER JOIN
+selezione i record anche non correlati (campo a destra deve avere la tabella della quale voglio i record)
+
+ORACLE:
+select nome_imp, nome_rep
+from impiegato2, reparto
+where
+impiegato2.id_rep (+)= reparto.id_rep
+
+UNA SECONDA OPZIONE
+
+LEFT JOIN (from da tab con pk)
+select impiegato2.nome_imp,reparto.nome_rep
+from reparto
+left join impiegato2 on(impiegato2.id_rep = reparto.id_rep)
+
+RIGHT JOIN(from da tab con fk)
+select impiegato2.nome_imp,reparto.nome_rep
+from impiegato2 
+right join reparto on(impiegato2.id_rep = reparto.id_rep)
+
+FULL OUTER JOIN 
+controlla per ogni tabella i campi non correlati
+
+CROSS JOIN
+select impiegato2.nome_imp,reparto.nome_rep
+from reparto, impiegato2
+cross join impiegato2
+
+SET JOIN
+
+select 'Il libro ' || titolo || 'Š il'||level||'della serie'||serie as "Gerarchia libri"
+from libri
+start with parent_id is null connect by prior is isbn = parent_id
+
+
+QUERY PARAMETRICHE
+query che al posto del valore ha un parametro variabile
+utile perche la query è compilata una volta
+es.  select * from reparto where nome_rep = &reparto;
