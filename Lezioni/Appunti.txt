@@ -840,3 +840,190 @@ QUERY PARAMETRICHE
 query che al posto del valore ha un parametro variabile
 utile perche la query è compilata una volta
 es.  select * from reparto where nome_rep = &reparto;
+
+QUERY INSIEMISTICHE
+
+1-UNION / UNION ALL[si duplicati]
+SQL> r
+  1  select nome_cliente, citta_cliente, societa, tipologia
+  2  from clienti2
+  3  union / intersect / minus
+  4  select nome_fornitore,citta_fornitore,societa, tipologia
+  5  from fornitori
+  6* order by tipologia
+
+2-INTERSECT > dati comuni
+3-MINUS -> dati non in comune
+
+
+FUNIZONI DI CONVERSIONE
+-to_number
+-to_date
+-to_char
+
+data solo in to_char
+FLAG TO_CHAR(per date)
+- MM
+- MONTH
+- MON
+- YY
+- YYYY
+- HH24
+- HH12
+- AM_PM
+- MI
+- SS
+
+FLAG TO NUMBER
+- 9  -> 999,999,999,999.00 (dove 9 qualsiasi roba
+- 0
+- .
+- ,
+- MI > messo in fondo se val negativo mette - in fondo al number
+- V > 999V99 = n° a sx elevato alla seconda (999V999 n^3 ecc..)
+
+esempio:
+1)	SQL> select nome_progetto
+ 	 2  from progetti
+ 	 3  where to_char(data_inizio,'yyyy') > '2005';
+
+2)	SQL> select to_char(122999, '999,999,999.00') from dual;
+3) 	SQL> select nvl(to_char(stipendio),'Stipendio non presente') from dipendente;
+
+
+- FUNC CONVERSIONE
+- FUNC STRINGA
+	SQL> SELECT initcap('max') from dual; -> 'Max'
+	SQL> select upper('max') from dual; -> 'MAX'	
+	SQL> select length('davcavcahb') from dual; -> 12
+	SQL> select replace('Funzione replace','ne','ni') from dual; -> 'Funzioni replace'
+	SQL> select substr('Funzine substring',10,6) from dual;
+	SQL> select trim('        as') from dual; -> 'as'
+	SQL> select ltrim('        as       ') from dual; -> 'as        '
+	SQL> select rtrim('        as       ') from dual; -> '        as'
+	SQL> select instr('tommasosancini@gmail.com','@') from dual; -> 15
+
+- FUNC DATE
+	SQL> select sysdate + interval '10-3' year to month from dual;
+	SQL> select sysdate - interval '0-3' year to month from dual;
+	SQL> select to_char(sysdate + interval '1-6' year to month + interval '5 02:10:30' day to second,
+		'DD-MM-YYYY HH24:MI:SS') as calcolo from dual;
+
+	SQL> alter session set nls_date_format = 'YYYY-MM-DD'; (customizzo il fromato della data)
+	SQL> select systimestamp from dual; -> molto preciso
+	SQL> select months_between('19-NOV-2001','16-OTT-2010') from dual; -> differenza tra mesi 
+- FUNC NUMERICHE
+	SQL> select abs(-20) from dual; > MODULO
+	SQL> select round(3000.2345242,2) from dual; > truncate + arrotondamento
+	SQL> select trunc(3000.2345242,2) from dual;
+	SQL> select ceil(3000.2345242) from dual;
+	SQL> select floor(3000.2345242) from dual;
+	SQL> select log(4,2) from dual;
+	SQL> select mod(5,2) from dual;
+	SQL> select sign(-20) from dual;
+	SQL> select sqrt(25) from dual;
+	SQL> select power(4,25) from dual;
+
+
+----------------------------------------------------------------------
+VIEWS 
+SELEZIONI DINAMICHE 
+un modo di salvare le query (RIMANE SALVATA COME OGGETTO NEL DB)
+NON CONTIENE DATI PROPRI
+
+creare View:	SQL> create or replace view selezione
+ 	 		2  as select * from imp;
+
+eseguire view:	SQL> select * from selezione;
+
+SALVARE QUERY :    SQL> save C:\Users\betacom\Desktop\Accademy\SQLquery\selezione.sql
+ESEGUIRE QUERY  :  SQL> @C:\Users\betacom\Desktop\Accademy\SQLquery\selezione.sql
+VEDERE CONTENUTO : SQL> get C:\Users\betacom\Desktop\Accademy\SQLquery\selezione.sql
+---------------------
+INSERIMENTO
+
+INSERISCO CAMPO UNO PER VOLTA : SQL> insert into tab values(null, null, x, null,x); 
+Inserisco solo i campi che mi servono : SQL> insert into tab(campo1, campo4, campo8,) values(......);
+ma ogni volta devo riscrivere quindi:
+
+INSERT VIEW(maschera di inserimento)
+1)creo view
+	create or replace view insert_tab
+	as select campo,campo4, campo8   
+	from tab;
+
+2)inserisco nella tab tramite view 	
+	insert into insert_tab values(........);
+
+nella view posso fare inserimenti in una tabella per volta per non 
+bypassare l integrita referenziale
+(solo tramite trigger a puntino si puo fare view aggiornabili)
+
+NO! create view Nome as
+    select cliente.id, nome_cliente, ordine.id
+    from cliente, ordine.
+
+--------------------------------------------------------------------------------
+ORACLE - SINONIMI
+Oggetti che servono per memorizzare un sinonimo per un oggetto
+
+create synonym nome_sy for nomeOggetto;
+
+problema -> select * from tabelledimassimo.cliente;
+soluzione -> create synonym cliente for tabelledimassimo.cliente;
+		select * from cliente
+POSSONO ESSERE
+public : create synonym cliente for tabelledimassimo.cliente;
+privati : create synonym paolo.cliente for tabelledimassimo.cliente;
+
+----------------------------------------------------------
+DATABASE LINK
+link a un istanza di un db esterno
+
+COME
+create database link miolink
+connect ruolo(presente in db2) identified by psw
+using db2;
+
+QUERY
+select * from cliente@miolink
+
+COMANDI TCL(Transaction control language)
+- commit;
+- rollback;
+- savepoint (punti di ripristino all interno di una transazione) -> rollback to nome_sp
+- set autocommit on;
+- set transaction !!!!!
+	
+ISOLATION LEVEL > modalita ce viene usata per interagire con trans di altri client
+	- default : Read Committed (altro client legge solo se committato) (no dirty read)
+	- Read uncommitted (no Oracle)
+	- read only (posso fare letture ripetibili)
+	- serializable (come read only ma permette dele modifiche)
+		posso modificare dati che non sono stati gia toccatai da altri client(anche da trensazioni commitatte)
+-------------------------------------------------------------------------
+PROBLEMI CONCORRENZA
+- DIRTY READ -> leggere riga non ancora committata
+- RIGHE FANTASMA -> righe delle quali vengo a conoscenza solo quando non faccio una nuova transazione
+
+		t1    t2
+		--
+		---	
+		--
+	/*	--  >  10
+		--
+		--             */ righe fantasma
+		--   > 20
+
+- LETTURA NON RIPETIBILE -> una lettura che non si ripete nell arco del tempo
+--------------------------------------------------------------
+ACID
+- dati atomici
+- cooerenza (no dati sporchi)
+- isolamento
+- durata
+
+
+
+
+

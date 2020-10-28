@@ -193,11 +193,76 @@ Alberghi:=<Cod_alb, Nome, Citta >
  	 2  from clienti,prenot
  	 3  where clienti.id = prenot.id
 	 4* and prenot.acconto > (select avg(acconto) from prenot)
+---------------------------------------------------------------------------
+JOIN
+
+
+1) Ritornare tutti i dati dei clienti che hanno una prenotazione per la camera 25;
+
+    INNER JOIN (ORACLE)
+	SQL> select cliente.*
+ 	 2  from cliente, prenot2
+	 3  where cliente.id = prenot2.id_clt
+ 	 4* and camera = 25
+
+    SUBQUERY
+	SQL> select cliente.*
+ 	 2  from cliente
+ 	 3  where cliente.id in (select prenot2.id_clt 
+				from prenot2 where camera = 25);
+
+2) Ritornare tutti i dati dei clienti e delle relative prenotazioni per tutti coloro che hanno età compresa fra 25 e 40 anni;
+
+   INNER JOIN (ORACLE)
+	SQL> select cliente.nome, prenot2.id_pren
+ 	 2  from cliente, prenot2
+ 	 3  where eta between 25 and 40
+	 4* and cliente.id = prenot2.id_clt
+   SUBQUERY
+	SQL> select cliente.nome
+ 	 2  from cliente
+ 	 3  where eta between 25 and 40
+ 	 4  and cliente.id in (select prenot2.id_clt
+ 	 5*    from prenot2)
+
+3) Ritornare tutti i dati delle prenotazioni effettuate da clienti che risiedono a Milano;
+
+   INNER JOIN
+	SQL> select prenot2.*
+	 2 from cliente, prenot2
+	 3 where cliente.citta = 'Milano'
+         4* and cliente.id = prenot2.id_clt
+
+   SUBQUERY
+	SQL> select prenot2.*
+	  2  from prenot2
+	  3  where prenot2.id_clt in (select cliente.id
+	  4  from cliente
+	  5* where citta = 'Milano')
+
+4) Ritornare cognome, nome, acconto e camera dei clienti che hanno versato un acconto superiore a 100.000 e che hanno più di 25 anni;
+
+	SQL>  select cognome,nome,acconto,camera
+	  2  from cliente c, prenot2 p
+	  3  where p.acconto >= 100000
+ 	  4* and c.id = p.id_clt
+
+5) Per ogni albergo ritornare cognome, nome e città dei clienti che hanno versato un acconto superiore alla media;
+
+	SQL> select alberghi.nome, cliente.nome, cliente.cognome, cliente.citta
+  	 2  from cliente,prenot2,alberghi
+  	 3  where cliente.id = prenot2.id_clt
+  	 4  and alberghi.id_alb = prenot2.id_alb
+  	 5  and prenot2.acconto > (select avg(acconto)
+  	 6*                            from prenot2)
+
+6) Per ogni albergo ritornare cognome, nome e città dei clienti che hanno versato un acconto superiore alla media di quell’albergo.
 
 
 
-
-
+7) Ritornare cognome, nome e città dei clienti, nome e città dell’albergo per coloro che hanno stipendio superiore alla media della 
+città in cui abitano e hanno prenotato per un periodo superiore alla media del loro albergo, per calcolare il risultato considerare 
+solamente i clienti che hanno effettuato almeno una prenotazione valida (controllare che per la prenotazione esistano sia il codice del cliente che quello dell’albergo).
 
 
 
