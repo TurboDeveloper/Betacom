@@ -1,3 +1,7 @@
+
+ESERCIZI QUERY DI ENTRAMBI FILE CONSEGNATI
+
+
 SELEZIONI SEMPLICI
 
 SQL> select cognome
@@ -260,17 +264,24 @@ JOIN
 
 
 
-7) Ritornare cognome, nome e città dei clienti, nome e città dell’albergo per coloro che hanno stipendio superiore alla media della 
-città in cui abitano e hanno prenotato per un periodo superiore alla media del loro albergo, per calcolare il risultato considerare 
-solamente i clienti che hanno effettuato almeno una prenotazione valida (controllare che per la prenotazione esistano sia il codice del cliente che quello dell’albergo).
 
 
+----------------------------------------------------------------------------------------------------------------------------------------------------
+SECONDO FILE CONSEGNATO DI QUERY
 
 
-
-
-
-
+1) 
+	A) select titolo, count(*) as "NUMERO", sum(prezzobiglietto) as "TOTALE"
+		from concerti, prenotazioni
+		where concerti.id_conc = prenotazioni.id_conc 
+		group by id_conc
+		order by sum(prezzobiglietto);
+	B) select distinct count(distinct id_sp)
+		from prenotazioni
+		where not exists (select *
+		from prenotazioni, concerti
+		where data between &data1 and &data2 
+		and pr.id_conc = co.id_conc
 
 
 

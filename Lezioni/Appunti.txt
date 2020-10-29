@@ -722,7 +722,26 @@ vs procedure faccio -> select calcolo from tab ;
 chiamata dentro la query
 
 (on replace -> sostituisce l ogget sistente)
+------------------------------------------------------------------------------------------
+COMANDI DCL(Data Control Language)
+- grant
+- revoke
 
+SINTASSI
+- grant ruolo, privilegio, priv2, priv3 to ruolo/public/schema; (grant dba to turbo)
+	
+	creare ruolo nomer;
+	grant select any table, drop any trigger, alter any table to nomer;
+	grante nomer to turbo;	
+
+	create user turbo identified psw; -> non ha privilegi ma anche se fosse
+	non puo creare oggetti(necessita di quote di scrittura)
+	dunque
+	quota 100M on nomeTableSpace quota unlimited on t2
+	default tablespace nomeT temporary tablespace
+	with admin option
+
+- revoke  ruolo, privilegio, priv2, priv3 from ruolo/public/schema;
 ----------------------------------------------------------------
 
 
@@ -935,12 +954,13 @@ creare View:	SQL> create or replace view selezione
  	 		2  as select * from imp;
 
 eseguire view:	SQL> select * from selezione;
-
+----------------------------------------------------
+QUERY SU FILE
 SALVARE QUERY :    SQL> save C:\Users\betacom\Desktop\Accademy\SQLquery\selezione.sql
 ESEGUIRE QUERY  :  SQL> @C:\Users\betacom\Desktop\Accademy\SQLquery\selezione.sql
 VEDERE CONTENUTO : SQL> get C:\Users\betacom\Desktop\Accademy\SQLquery\selezione.sql
 ---------------------
-INSERIMENTO
+INSERIMENTO VIEW
 
 INSERISCO CAMPO UNO PER VOLTA : SQL> insert into tab values(null, null, x, null,x); 
 Inserisco solo i campi che mi servono : SQL> insert into tab(campo1, campo4, campo8,) values(......);
@@ -1023,7 +1043,326 @@ ACID
 - isolamento
 - durata
 
+--------------------------------------------------------------------------------
+[PRAGMA] -> aggiungono funzionalita al paradigma
+
+v_eeccexione exception
+begin
+si possono iterare cicli, creare transazioni
+(finche comanti TCL o DML posso metterli in procedure, se invece DCL o DDL
+serve NDS, un blocco che tramite una gestione automa 
+risole il problema dei autocommit)
+
+PROBLEMA -> SE UN UPDATE VA IN ERRORE SALTANO TUTTI E 5
+begin
+	update x5..
+exception
+	when tipo_exc then
+	...
+	when tipo_exc2 then
+	...
+	when others then
+	...... [se nessuna precedenti allora cattura]
+
+end;
+
+SOLUZIONE
+begin
+	begin 
+		update..
+	exception
+		when no_data_found then
+	end;
+	begin 
+		update..
+	exception
+		when no_data_found then
+	end;
+	ecc..
+if(cond) then
+raise(throw) v_eccezione;
+
+exception
+	when tipo_exc then
+	...
+	when v_eccezione then
+	...
+	when others then
+	...... [se nessuna precedenti allora cattura]
+
+end;
+-------------------------------------------------------------
+------------------------------------------------------------------
+CURSORE
+puntatore alla memoria(PGA), che serve per allocare i dati da modificare
+
+-------------------------------------------------------------------------
+IMPLICITO[into]
+si puo utilizzare quando la query di modifica restituisce una sola riga di risultati
+(select stipendio from id_imp -> 1 valore)
+
+CODICE
+procedure modifica_stipendio(p_id int, p_modifica number) as
+v_stipendio dipendente.stipendio%type;
+exc_null exception;
+begin
+select stipendio into v_stipendio from dipendente
+where id_dip = p_id;
+if v_stipendio is null then
+raise exc_null;
+else
+update dipendente set stipendio = v_stipendio + p_modifica
+where id_dip = p_id;
+end if;
+exception
+when no_data_found then
+raise_application_error(-20100,'id dipendente non trovato');
+when exc_null then
+raise_application_error(-20101,'Stipendio da aggiornare nullo');
+when others then
+raise_application_error(-20102, sqlerrm);
+end;
+
+----------------------------------------------------------------------
+ESPLICITO
+quandpo la select dei risultat che vogliamo modificare ritorna piu di una riga
+- se cursore deve solo leggere va bebe solo impostare la select 
+- se no
+	select stipendio from dipendente
+	where livello = p_livello
+	for update;
+	
+- con select con piu campi
+	select stipendio from dipendente
+	where livello = p_livello
+	for update of stipendio;
+
+CODICE:r
+	
+create or replace procedure modifica_stipendio2(p_livello int, p_modifica number) as
+v_stipendio dipendente.stipendio%type;
+cursor dip_cur is
+select stipendio from dipendente
+where livello = p_livello
+for update;
+exc_null exception;
+begin
+open dip_cur;
+loop
+	fetch dip_cur into v_stipendio;
+	exit when dip_cur%notfound
+	update dipendente set stipendio = v_stipendio + p_modifica
+	where current of dip_cur;
+end loop;
+close dip_cur;
+exception
+when others then
+raise_application_error(-20102, sqlerrm);
+end;
+------------------------------------------
 
 
+-----------------------------------
+il package in oracle è un file che contiene un elenco di funzioni
 
 
+BLOCCO ANONIMO
+utilizzo declare per dichiarare variabili
+
+
+rowtype -> 
+
+select * from dipendente
+set serveroutput on
+declare
+v_dipendenti dipendente%rowtype;
+cursor dip_cur is
+select * from dipendente;
+begin
+open dip_cur;
+loop
+fetch dip_cur into v_dipendenti;
+exit when dip_cur%notfound;
+dbms_output.put_line(v_dipendenti.nome_dip||': '||v_dipendenti.stipedio);
+end loop;
+close dip_cur;
+end;
+-----------------------------------------------------------------------------------
+
+CON WHILE
+declare
+v_dipendenti dipendente%rowtype;
+cursor dip_cur is
+select * from dipendente;
+begin
+open dip_cur;
+fetch dip_cur into v_dipendenti;
+while dip_cur%notfound
+loop
+dbms_output.put_line(v_dipendenti.nome_dip||': '||v_dipendenti.stipendio);
+end loop;
+close dip_cur;
+end;
+
+--------------------------------------------------------------------------------
+FOR
+declare
+cursor dip_cur is
+select * from dipendente;
+begin
+for v_dipendente in dip_cur
+loop
+dbms_output.put_line(v_dipendente.nome_dip||': '||v_dipendente.stipendio);
+fetch dip_cur into v_dipendenti;
+end loop;
+end;
+---------------------------------------------------------------
+
+CURSORI ANNIDATI
+create or replace procedure ottieni_info(p_isbn char) as
+cursor libro_cur is
+select l.titolo, cursor(
+select * from autore a
+where
+a.id = l.autore1
+or
+a.id = l.autore2
+or
+a.id = l.autore3)
+from libro l
+where isbn = p_isbn;
+cur_autori sys_refcursor;
+v_titolo libro.titolo%type;
+v_autori autore%rowtype;
+begin
+open libro_cur;
+loop
+	fetch libro_cur into v_titolo, cur_autori;
+	exit when libro_cur%notfound;
+	dbms_output.put_line(v_titolo);
+	loop
+		fetch cur_autori into v_autori;
+		exit when cur_autori%notfound;
+		dbms_output.put_line(v_autori.nome||' ' ||v_autori.cognome);
+	end loop;
+end loop;
+close libro_cur;
+end;
+
+
+---esercizo...
+create or replace procedure inverti_nomi as
+v_nome nominativi.nome%type;
+v_cognome nomativi.cognome%type;
+cursor nomina_cur is
+select nome, cognome from nominativi
+for update;
+begin
+open nomina_cur;
+loop
+	fetch nomina_cur into v_cognome, v_nome;
+	exit when nomina_cur%notfound
+	update nominativi set nome = v_nome,
+	update nominativi set cognome = v_cognome,
+	where current of nomina_cur;
+end loop;
+close nomina_cur;
+exception
+when others then
+raise_application_error(-20102, sqlerrm);
+end;
+
+	
+--------------------------------------------------------
+NDS
+execute immediate -> permette l esecuzioni di comandi ddl/dcl da procedure
+(crea un involucro che chiude la transazione della procedura e ne fa una apposta (autonoma) per comando ddl/dcl
+
+ESEMPIO
+declare
+v_statement varchar2(100);
+cursor selezione_cur is
+select trigger_name from
+user_triggers;
+begin
+for t in selezione_cur
+loop
+	v_statement := 'Alter trigger '||t.trigger_name||' disable';
+	execute immediate v_statement;
+end loop;
+end;
+
+----------------------------------------------------------------
+PRAGMA -> TRANSAZIONI AUTONOME
+
+1) T- AUTONOMA
+	create or replace procedure salva_dati(p_username varchar2, p_data timestamp) as
+	pragma autonomous_transaction;
+ 	begin
+		insert into dati values(p_username, p_data);
+		commit;
+	end;
+2) T-CHIAMANTE
+	create or replace procedure insert_autore(p_id int, p_nome varchar2, p_cognome varchar2) as
+		begin
+		insert into autore values(p_id,p_nome,p_cognome);
+		salva_dati(user, systimestamp);
+		rollback;
+	end;
+3) ESECUZIONE T-CHIAMANTE
+	execute insert_autore(3,'turbo','mimmo');
+4)
+-------------------------------------------
+PROCEDURE VS FUNZIONI
+A)La funzione deve avere un tipo di ritorno
+
+	1- create or replace funcion nomef(....) retun tipo as
+		.....
+	   return valore;
+	2- create or replace procedure nomep(...) as
+		...
+B)modi differenti di chiamare 
+	1- select nomef(..)
+	2- execute nomep
+C)funzione non utilizzata per fare aggiornamenti su tabelle
+--------------------------------------------------
+GOTO
+<<nome_etichetta>>
+
+goto nome_etichetta;
+-------------------------------------------------------------------------------------------
+TEST:
+SQL> variabile stipendio number
+SQL> exec :stipendio := calcolo(1)
+SQL> print stipendio
+
+ES
+in ingresso riceve quantita(magazzino), prezzo(libro)
+modifichiamo la quantita in base al magazzino e
+incrementiamo la q solo quando i prodotti sono disponibili
+dove prezzo < 10 euro
+stampiamo libro x avevano q vecchia -> nuova
+
+create or replace procedure esercizio_procedura(p_quantita number, p_prezzo number) as
+v_qnt magazzino.quantita%type;
+cursor mag_cur is
+select m.quantita
+  from magazzino m, libro l
+  where l.prezzo > p_prezzo
+  and m.stato = 'DISPONIBILE'
+  and m.isbn = l.isbn
+for update;
+begin
+open mag_cur;
+loop
+	fetch mag_cur into v_qnt;
+ 	exit when mag_cur%notfound;
+ 	update magazzino set quantita = v_qnt + p_quantita
+        where current of mag_cur;
+end loop;
+close mag_cur;
+exception
+when others then
+raise_application_error(-20102,sqlerrm);
+end;
+/
