@@ -1,0 +1,45 @@
+
+----------ESERCIZIO 1--------------------------------------------------------
+TABELLE 
+1)  velisiti(id_vel int,
+	nome_vel varchar2(30),
+	cogn_vel varchar2(30),
+	vittorie number(4));
+2)  ex_velisti(id_vel int,
+	nome_vel varchar2(30),
+	cogn_vel varchar2(30),
+	vittorie number(4))
+3)  statistiche(tipo_accesso char(1),
+		nome_utente varchar2(20),
+		tempo timestamp))
+
+- TRIGGER 1
+create or replace trigger esercizio1
+after delete on velisti
+for each row
+begin
+	insert into ex_velisti values(:old.id_vel, :old.nome_vel, 
+					:old.cogn_vel, :old.vittorie);
+exception
+when others then
+raise_application_error(-20111, sqlerrm);
+end;
+
+- TRIGGER STATISTICA
+create or replace trigger esercizio1_statistica
+after insert or update or delete on velisti
+for each row
+begin
+if inserting then
+	insert into statistiche values('I', user, sysdate);
+elsif updating then
+	insert into statistiche values('U', user, sysdate);
+else 
+	insert into statistiche values('D', user, sysdate);
+end if;
+exception
+when others then
+raise_application_error(-20111, sqlerrm);
+end;
+
+------------ESERCIZIO 2-----------------------------------------------

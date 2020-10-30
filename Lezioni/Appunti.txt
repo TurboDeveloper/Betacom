@@ -983,6 +983,17 @@ NO! create view Nome as
     select cliente.id, nome_cliente, ordine.id
     from cliente, ordine.
 
+---ESEMPIO----
+a) create or replace view acco
+  2  as
+  3  select avg(acconto) as a
+  4  from prenot
+  5  group by cod_alb;
+
+b) select clienti.nome || clienti.cognome || clienti.citta as anagrafica,alberghi.nome,prenot.acconto
+  2  from clienti,alberghi,prenot,acco
+  3  where clienti.id=prenot.cod_cli and prenot.cod_alb=alberghi.cod_alb
+  4* and acconto>a
 --------------------------------------------------------------------------------
 ORACLE - SINONIMI
 Oggetti che servono per memorizzare un sinonimo per un oggetto
@@ -1044,6 +1055,125 @@ ACID
 - durata
 
 --------------------------------------------------------------------------------
+
+PARAMETRI(PROCEDURE E FUNZIONI)
+3 tipologie di parametri
+- IN [defaul]
+- OUT [il parametro verra passato null e modificato nel corpo, 
+	cosi modifico una var passata esternamente]
+- IN OUT [parametro passato inizializzato e modificato nel corpo, 
+	con indirizzo memoria passato esternamente]
+
+Come?
+nomeP(p_nome OUT tipo, p_cognome IN OUT congome)
+
+VALORI PASSATI
+Java   -> PER COPIA/VALORE!!!
+PL/SQL -> IN         -> RIFERIMENTO
+	  OUT/IN OUT -> COPIA
+
+----ESEMPIO----
+CHIAMANTE:
+
+declare
+v_locale number(3) := 10;
+begin
+dbms_output.put_line('Prima della chiamata: '|| v_locale);
+test(v_locale);
+dbms_output.put_line('Dopo la chiamata: '|| v_locale);
+end;
+/
+
+PROCEDURE
+
+IN)
+create or replace procedure test(p_parametro in number) as
+v_locale number(3);
+begin
+dbms_output.put_line('Blocco Begin End');
+if p_parametro is null then
+dbms_output.put_line('Parametro nullo');
+else
+dbms_output.put_line('Parametro ingresso: ' || p_parametro);
+end if;
+v_locale := p_parametro;
+dbms_output.put_line('Dopo l''assegnazione: '||v_locale);
+if p_parametro is null then
+dbms_output.put_line('Parametro nullo');
+else
+dbms_output.put_line('Parametro ingresso: ' || p_parametro);
+end if;
+end;
+/
+RISULTATO IN
+Prima della chiamata: 10
+Blocco Begin End
+Parametro ingresso: 10
+Dopo l'assegnazione: 10
+Parametro ingresso: 10
+Dopo la chiamata: 10
+
+-----
+OUT)
+create or replace procedure test(p_parametro out number) as
+v_locale number(3);
+begin
+dbms_output.put_line('Blocco Begin End');
+if p_parametro is null then
+dbms_output.put_line('Parametro nullo');
+else
+dbms_output.put_line('Parametro ingresso: ' || p_parametro);
+end if;
+p_parametro := 20;
+v_locale := p_parametro;
+dbms_output.put_line('Dopo l''assegnazione: '||v_locale);
+if p_parametro is null then
+dbms_output.put_line('Parametro nullo');
+else
+dbms_output.put_line('Parametro ingresso: ' || p_parametro);
+end if;
+end;
+/
+
+RISULTATO OUT:
+Prima della chiamata: 10
+Blocco Begin End
+Parametro nullo
+Dopo l'assegnazione: 20
+Parametro ingresso: 20
+Dopo la chiamata: 20
+
+-------
+IN OUT)
+procedure test(p_parametro in out number) as
+v_locale number(3);
+begin
+dbms_output.put_line('Blocco Begin End');
+if p_parametro is null then
+dbms_output.put_line('Parametro nullo');
+else
+dbms_output.put_line('Parametro ingresso: ' || p_parametro);
+end if;
+p_parametro := 20;
+v_locale := p_parametro;
+dbms_output.put_line('Dopo l''assegnazione: '||v_locale);
+if p_parametro is null then
+dbms_output.put_line('Parametro nullo');
+else
+dbms_output.put_line('Parametro ingresso: ' || p_parametro);
+end if;
+end;
+/
+
+RISULTATO IN OUT
+Prima della chiamata: 10
+Blocco Begin End
+Parametro ingresso: 10
+Dopo l'assegnazione: 20
+Parametro ingresso: 20
+Dopo la chiamata: 20
+
+----------------------------------------------------------------------------------
 [PRAGMA] -> aggiungono funzionalita al paradigma
 
 v_eeccexione exception
@@ -1351,13 +1481,14 @@ select m.quantita
   where l.prezzo > p_prezzo
   and m.stato = 'DISPONIBILE'
   and m.isbn = l.isbn
-for update;
+for update of quantita;
 begin
 open mag_cur;
 loop
 	fetch mag_cur into v_qnt;
  	exit when mag_cur%notfound;
- 	update magazzino set quantita = v_qnt + p_quantita
+	v_qnt := v_qnt + p_quantita;
+ 	update magazzino set quantita = v_qnt
         where current of mag_cur;
 end loop;
 close mag_cur;
@@ -1366,3 +1497,207 @@ when others then
 raise_application_error(-20102,sqlerrm);
 end;
 /
+-----------------------------------------------------------------------------------------------------
+TRIGGER
+select text from user_source where name = 'TEST'
+ROUTINE AVVIATA DA UN AVENTO
+
+EVENTO ->
+	DML             SISTEMA
+
+DEFINIZIONE TRIGGER
+create or replace trigger nomeT
+before -> eseguito prima di comando dml
+ after ->          dopo
+insted of -> sostituisce il comando dml
+
+insert or update or delede in tabella/view
+
+QUANTE VOLTE
+[statement] -> corpo trigger eseguito una volta
+for each row -> corpo trigger eseguito n volte - per ogni riga modificata dal comando dml
+[when (cond)] -> restrizione di attivazione
+
+OPERATORI DI CORRELAZIONE
+(fuori dal blocco trigger sono accessibili senza ":")
+		:new	:old
+insert		  v	  -
+update		  v	  v
+delete		  - 	  v
+
+PREDICATI DI TRIGGER
+servono per controllare l evento attivante 
+
+- if inserting then ...
+- if updating then ...
+- if deleding then ...
+
+DICHIARAZIONE:
+declare
+.............
+..........
+begin
+.........
+
+exception
+
+end;
+
+--------ESEMPI---------------
+1)
+create or replace trigger genera_stat
+after insert or update or delete on dipendente
+declare
+cursor dip_cur is
+select livello,
+sum(stipendio) somma_stip,
+avg(stipendio) media_stip,
+count(stipendio) conteggio_stip,
+from dipendente
+group by livello;
+begin
+delede from statistica_stip;
+for v_stat in dip_cur
+loop
+	insert into statistica_stip values(v_stat.livello,
+	v_stat.somma_stip, v_stat.media_stip, v_stat.conteggio_stip);
+end loop;
+end;
+/
+
+
+2)
+create or replace trigger controllo
+before insert or update or delete on dipendente
+begin
+if to_char(sysdate, 'DY') in ('SAB','DOM') then
+raise_application_error(-20100, 'Non è possibile inserire i dati nel weekend');
+end if;
+end;
+
+3)
+create or replace trigger log_dipendenti
+after insert or update or delete on dipendente
+for each row
+begin
+if inserting then
+insert into nuovi_dip values(:new.nome_dip,:new.stipendio,
+user, sysdate);
+elsif updating then
+insert into aggiornamento_stip values(:new.nome_dip,:old.stipendio,:new.stipendio,
+user, sysdate);
+else
+insert into licenziati values(:old.nome_dip, user, sysdate);
+end if;
+exception
+when others then
+raise_application_error(-20111, sqlerrm);
+end;
+
+
+
+4)
+create or replace trigger aggiornamenti
+after update on dipendente
+for each row
+when (new.stipendio <> old.stipendio)
+begin
+	insert into aggiornamento_stip values(:new.nome_dip,:old.stipendio,
+	:new.stipendio, user, sysdate);
+end;
+
+------------------------------------------------------------------------------
+TRIGGER DI SISTEMA
+
+DEFINIZIONE
+create or replace trigger nomeT
+before | after	evento_sistema on turbo.schema|database
+[when (cond)]
+declare
+..................
+begin
+
+
+end;
+
+COMANDI DI SISTEMA			before		after			
+- tutti ddl (create,alter,rename,	  x		  x
+	drop,comment,truncate)
+- logon
+- logoff
+- startup						  x
+- shutdown				  x
+- eventi dcl (grant, revoke)		  x		  x
+- suspend						  x
+- servererror						  x
+
+LINK DI VARIABILI REPERIBILI DA SISTEMA -> 
+https://docs.oracle.com/cd/B10501_01/appdev.920/a96590/adg14evt.htm
+
+-------ESEMPIO-----------------------------------------
+create or replace trigger controllo_ddl
+after create on database
+begin
+insert into log_ddl values(user,ORA_DICT_OBJ_NAME,
+ORA_DICT_OBJ_TYPE, ORA_DICT_OBJ_OWNER, systimestamp);
+end;
+
+
+-----------ESEMPIO TRIGGER INSERIMENTO-----------------
+RENDE VISTE AGGIORNABILI
+VISTA
+create or replace view libri_view
+as select l.isbn, a.nome, a.cognome, l.titolo
+from libro l, autore a
+where l.autore1 = a.id
+or
+l.autore2 = a.id
+or
+l.autore3 = a.id;
+
+TRIGGER
+create or replace trigger insert_view
+instead of insert on libri_view
+declare
+v_libro libro%rowtype;
+v_id_autore autore.id%type;
+begin
+	begin
+	select id into v_id_autore
+	from autore
+	where nome = :new.nome
+	and
+	cognome = :new.cognome;
+	exception
+	when no_data_found then
+	insert into autore values(autore_seq.nextval, :new.nome, :new.cognome)
+	return id into v_id_autore;
+	end;
+select * into v_libro from libro
+where isbn = :new.isbn;
+if v_libro.autore2 is null then
+update libro set autore2 = v_id_autore
+where isbn = :new.isbn;
+else
+update libro set autore3 = v_id_autore
+where isbn = :new.isbn;
+end if;
+end;
+/
+CON SEQUENCE:
+create sequence autore_seq start with 10
+
+PACKAGE 
+costruisto si
+1) INTESTAZIONE -> create or replace package nomeP as
+2) CORPO -> create or replace package body
+
+Oggetto globale per catalogare le procedure e visto la visibilita database 
+contiene delle procedure utilizzabili da tutti
+
+
+
+
+
+
+
