@@ -1055,6 +1055,10 @@ ACID
 - durata
 
 --------------------------------------------------------------------------------
+----------------PROCEDURE------------------------------------------------------------------------
+create or replace procedure nome_p(p int, n varchar2) as
+dichiarare variabili con relativi tipi
+
 
 PARAMETRI(PROCEDURE E FUNZIONI)
 3 tipologie di parametri
@@ -1196,7 +1200,7 @@ exception
 
 end;
 
-SOLUZIONE
+SOLUZIONE -> si lavora su transazioni separate
 begin
 	begin 
 		update..
@@ -1225,6 +1229,7 @@ end;
 ------------------------------------------------------------------
 CURSORE
 puntatore alla memoria(PGA), che serve per allocare i dati da modificare
+[una sorta di memoria heap di java]
 
 -------------------------------------------------------------------------
 IMPLICITO[into]
@@ -1255,6 +1260,7 @@ end;
 
 ----------------------------------------------------------------------
 ESPLICITO
+Operazioni : Dichiararlo, allocare(caricare i valori), una volta aperto fetch, chiusura
 quandpo la select dei risultat che vogliamo modificare ritorna piu di una riga
 - se cursore deve solo leggere va bebe solo impostare la select 
 - se no
@@ -1272,8 +1278,8 @@ CODICE:r
 create or replace procedure modifica_stipendio2(p_livello int, p_modifica number) as
 v_stipendio dipendente.stipendio%type;
 cursor dip_cur is
-select stipendio from dipendente
-where livello = p_livello
+	select stipendio from dipendente
+	where livello = p_livello
 for update;
 exc_null exception;
 begin
@@ -1300,7 +1306,7 @@ BLOCCO ANONIMO
 utilizzo declare per dichiarare variabili
 
 
-rowtype -> 
+rowtype -> si seleziona tutta la riga
 
 select * from dipendente
 set serveroutput on
@@ -1327,27 +1333,29 @@ select * from dipendente;
 begin
 open dip_cur;
 fetch dip_cur into v_dipendenti;
-while dip_cur%notfound
+while dip_cur%found
 loop
 dbms_output.put_line(v_dipendenti.nome_dip||': '||v_dipendenti.stipendio);
+fetch dip_cur into v_dipendenti;
 end loop;
 close dip_cur;
 end;
 
 --------------------------------------------------------------------------------
-FOR
+FOR[utile per leggere]
 declare
 cursor dip_cur is
 select * from dipendente;
 begin
-for v_dipendente in dip_cur
+for v_dipendente in dip_cur    //apre automaticamente il cursore
 loop
 dbms_output.put_line(v_dipendente.nome_dip||': '||v_dipendente.stipendio);
 fetch dip_cur into v_dipendenti;
 end loop;
 end;
 ---------------------------------------------------------------
-
+SYSREFCURSOR -> fa riferimento a tutta la tabella, ho un riferimento di tipo cursore
+--------------------------------------------------------------------------------------
 CURSORI ANNIDATI
 create or replace procedure ottieni_info(p_isbn char) as
 cursor libro_cur is
@@ -1671,7 +1679,7 @@ begin
 	exception
 	when no_data_found then
 	insert into autore values(autore_seq.nextval, :new.nome, :new.cognome)
-	return id into v_id_autore;
+	returning id into v_id_autore;
 	end;
 select * into v_libro from libro
 where isbn = :new.isbn;
@@ -1694,7 +1702,153 @@ costruisto si
 
 Oggetto globale per catalogare le procedure e visto la visibilita database 
 contiene delle procedure utilizzabili da tutti
+---------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
+SETTIMANA 3
+LUNEDI
+JDBC -> JAVA DATABASE CONNECTIVITI
+Una pratica da seguire per potersi connnettere al DB
+STRATO DI ASTRAZIONE SOFTWARE
 
+DB CONNESSO TRAMITE TCP/IP
+
+1) CAPIRE SE DB è ONLINE -> FASE PING
+	Es: - turbo@orcl
+	    - tnsping ORCL -> (necessaria risposta OK)	
+
+
+select instance_name from v$instance; -> ritorna il nome vero del db dove stiamo lavorando (orcl)
+
+nella creazione
+NomeDB					AliasDB
+orcl					orcl
+accenture.com.analisi.vendite		vendite
+
+alias utilizzabile solo per connessioni interne (no in JDBC)
+SERVONO NUMERO PORTA(predefinito Oracle 1521) e indirizzo 
+informazioni che si trovano tramite 1)lsnrctl 2)status
+(se sono su server in cartella installazione oracledb/network/admin/listener.ora posso modificare anche
+la configurazione del listener)
+
+2)CARICARE driver di connessione JAVA,utilizzare la refelction
+ 	ORACLE -> jdbc/lib/ojdbc8
+	da spostare in c
+
+due tipologie :    thin 		oci
+-thin [la macchina non ha db/oracle, piu lento]
+-oci si basa su qualcosa precompilato [necessario client oracle o server]
+[DRIVER permette all applicativo (java) di connettersi al db]
+
+package java.sql.*;
+
+3)Connection -si ottiene tramite> DriverManager.getConnection(URL di connessione, username,psw) 
+!!URL DI CONNESSIONE DB = numero porta + indirizzo server + nome reale del SID
+-------------CONNESSO---------------------------
+4)Statement 	posso fare operazioni come DQL/DML/DDL/TCL/DCL
+	con DQL -ritorna> 
+  ResultSet(simile a cursore in PL che contiene le tuple selezionati)
+		RICORDARSI DI FARE NEXT(sia con e senza ciclo)
+  ResultSetMetaData(oggetto che legge metadati su resultset - quante colonne, nome dei campi,tipi dei campi)
+5)CHIUDERE CONNESSIONE -> conn.close();
+	[GarbageCollector controlla in automatico la conn JDBC]
+
+
+----------------------DB CON ECLIPSE--------------
+PROBLEMI
+-se facciamo insert da eclipse riavviamo subito eclipse
+-le sequenze non le visualizza
+-se non fa refresh -> chiudiamo la connessione e riapriamo
+-chiudere sqlplus mentre si lavora con eclipse
+----------------------STATEMENT-----------------------
+ResultSet ---- 
+	Concorrenza
+	     - CONCUR_READ_ONLY [default]
+	     - CONCUR_UPDATABLE
+	Cursore
+	     - TYPE_FOWARD_ONLY [default] [no salti tra record]
+	     - TYPE_SCOLL_SENSITIVE 
+	     - TYPE_SCOLL_INSENSITIVE
+				 
+SENSITIVE VS INSENSITIVE
+ App		Database
+T1		T2
+		1
+		2
+lettura		3	[INSENSIBLE -> quando chiuso la connessioe -> ritorna i primi 3(i valori quando il result set è stato aperto) ]	
+		4
+		5
+			[SENSIBILE] -> le moifiche riperquoto anche sul resultset
+
+conteggiare i record:
+rs.last()
+rs.getRow() -> il numero del record sulla quale ci troviamo
+
+IMPOSTARE STATEMENT
+Statement stmt = conn.createStatement(ResultSet.TYPE_SCOLL_SENSITIVE, 
+\				      ResultSet.CONCUR_UPDATABLE);
+
+METODI SALTARE TRA UN RECORD ALL ALTRO
+boolean next() -> uno per volta
+boolean previous() - scroll
+boolean absolute(int i) - scroll
+boolean first() - scroll
+boolean last() - scoll
+void beforeFirst() 
+void afterLast() - scroll
+int getRow() - riga su cui ci troviamo
+-------------------------------------------------------------------------
+OPERARIONI RESULT SET
+
+1)insert
+	ResultSet rs = stmt.executeQuery(SELECT_UTENTE[campi che voglio riempire]); 
+!!!!!!!nella selezione per un inserimnto non si deve mettere l * ->specificare i campi che voglio inserire !!!!!!!!!
+	rs.moveToInsertRow();
+	rs.updateLong(1,Utente.getId());
+	rs.updateString(2,Utente.getNome());
+	rs.updateDouble(3,Utente.getStipendio());
+	rs.insertRow(); -> se jdbc auto-com -> commit;
+			-> se jdbc !auto-com -> aggiorna il resultSet
+				conn.commit();
+
+
+2)update
+	ResultSet rs = stmt.executeQuery(SELECT_UTENTE[campi che voglio aggiornare]); 
+	(se select return una sola riga allora no ciclo, altrimenti obbligatorio)
+	[ciclo]
+	rs.updateLong(1,Utente.getId());
+	rs.updateString(2,Utente.getNome());
+	rs.updateDouble(3,Utente.getStipendio());
+	rs.UpdateRow(); -> se jdbc auto-com -> commit;
+			-> se jdbc !auto-com -> aggiorna il resultSet
+				conn.commit();
+
+
+
+3)delete
+
+	ResultSet rs = stmt.executeQuery(SELECT_UTENTE[campi che voglio aggiornare]); 
+	(se select return una sola riga allora no ciclo, altrimenti obbligatorio)
+
+	rs.deleteRow(); -> se jdbc auto-com -> commit;
+			-> se jdbc !auto-com -> aggiorna il resultSet
+				conn.commit();
+
+4)select
+
+-------RESULTSETMETADATA---------------------------------------------------------
+int getColumnCount()
+String getColumnName(int column)
+String getColumnLabel(int column) -> legge alias
+Object getColumnClassName(int column) -> tipologia Java del campo contenuto della colonna
+int getColumnType(int column) -> tipologia sql
+	[java.sql.Types -> contiene le costanti associate alle tipologie sql]
+String getTableName(int campo) -> ritorna la tabella dove ce quel campo
+
+Statement
+PraparedStatement -> serve per istruzioni sql parametriche (EVITARE SQL INJECTION)
+!!NON FARE!!! -> SQLINJECTION
+String nome = "Select nome,cognome from tab where campo = "+ var; 
+il parametro deve essere compilato su db
 
 
 
