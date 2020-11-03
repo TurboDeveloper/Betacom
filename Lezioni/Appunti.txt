@@ -1474,37 +1474,7 @@ SQL> variabile stipendio number
 SQL> exec :stipendio := calcolo(1)
 SQL> print stipendio
 
-ES
-in ingresso riceve quantita(magazzino), prezzo(libro)
-modifichiamo la quantita in base al magazzino e
-incrementiamo la q solo quando i prodotti sono disponibili
-dove prezzo < 10 euro
-stampiamo libro x avevano q vecchia -> nuova
 
-create or replace procedure esercizio_procedura(p_quantita number, p_prezzo number) as
-v_qnt magazzino.quantita%type;
-cursor mag_cur is
-select m.quantita
-  from magazzino m, libro l
-  where l.prezzo > p_prezzo
-  and m.stato = 'DISPONIBILE'
-  and m.isbn = l.isbn
-for update of quantita;
-begin
-open mag_cur;
-loop
-	fetch mag_cur into v_qnt;
- 	exit when mag_cur%notfound;
-	v_qnt := v_qnt + p_quantita;
- 	update magazzino set quantita = v_qnt
-        where current of mag_cur;
-end loop;
-close mag_cur;
-exception
-when others then
-raise_application_error(-20102,sqlerrm);
-end;
-/
 -----------------------------------------------------------------------------------------------------
 TRIGGER
 select text from user_source where name = 'TEST'
@@ -1760,7 +1730,8 @@ PROBLEMI
 -se non fa refresh -> chiudiamo la connessione e riapriamo
 -chiudere sqlplus mentre si lavora con eclipse
 ----------------------STATEMENT-----------------------
-ResultSet ---- 
+ResultSet ---- oggetto che viene ritornato in caso di una select 
+[se apro piu resultset in una connessione devo chiudere quelli gia attivi]
 	Concorrenza
 	     - CONCUR_READ_ONLY [default]
 	     - CONCUR_UPDATABLE
@@ -1849,6 +1820,71 @@ PraparedStatement -> serve per istruzioni sql parametriche (EVITARE SQL INJECTIO
 !!NON FARE!!! -> SQLINJECTION
 String nome = "Select nome,cognome from tab where campo = "+ var; 
 il parametro deve essere compilato su db
+
+---------------------------------------------------------
+FILE CON PROPRIETA DI CONNESSIONE
+Utile perche non viene compilato ogni volta, e basta nasconderlo in modo criptato
+
+----------RowSet---------
+le connessioni non sono sincronizzate
+dunque rowset serve a dare un ordine per i thread(client)
+due versioni
+1)JdbcRowSetImpl -> 		
+2)CachedRowSetImpl:(gestice anche modifiche corpose)
+	i dati da modificare li tiene in cache per poi sconnettersi dal db
+	posso modificare i dati online, sincronizzato
+	finito tutto -> row.acceptChanges(); = connect + commit;
+	svantaggio -> si apre e chiude tante volte il db
+
+METODI
+rowSet.setType(ResultSet.COSTANTE)
+rowSet.setConcurrency(ResultSet.COSTANTE) -> Suoi dati in cache
+
+NB:finche non ho finito l elaborazine dei dati devo stare online
+
+-----------CollableStatement------------
+permette di eseguire chiamate a procedure
+-> sql : {call nomeP(..)}
+
+-----------JVA: Java Persinstance Api------------
+Insieme di classi metodi, sono strumenti ORM(OBJECT RELATIONAL MAPPING) che aiutano 
+grandi quantà di dati su db
+
+
+ORM -> Il model viene utilizzato come mappatura nel db
+STRUMENTO ORM -> supporto di persistenza, che automazza, e ha capacità di convertire da tipo oggetto
+		a tipo relazionale, e contrario.
+MODEL -> Classe di getter e setter (per orm serve costruttore vuoto) 
+	 (Chiamato anche: Entity in JPA,Hybernate, Bean in Enterprise,VO, POJO)
+
+EntityManagerFactory -> crea istanze EntityManager
+EntityManager -> interfaccia operazioni di persistenza su obj, lavora come factory per gestire istanze Query
+Query -> Interfaccia: crea oggetti relazionali che conicide con il criterio di selezione impostato
+Entity -> Equivalente dei singoli record inseriti nel db
+EntityTransaction -> Rappresenta transazione: gestisce anche le relazioni tra tabelle(se modifco le classi,
+			 automaticamente anche la tabelle si modificano)
+
+DDL-GENERATION(in file xml proj JPA)
+-> create-tables
+-> create-or-extend-tables
+-> drop-and-create-tables
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

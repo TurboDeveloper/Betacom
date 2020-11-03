@@ -1,0 +1,51 @@
+ES
+in ingresso riceve quantita(magazzino), prezzo(libro)
+modifichiamo la quantita in base al magazzino e
+incrementiamo la q solo quando i prodotti sono disponibili
+dove prezzo < 10 euro
+stampiamo libro x avevano q vecchia -> nuova
+
+create or replace procedure esercizio_procedura(p_quantita number, p_prezzo number) as
+v_qnt magazzino.quantita%type;
+cursor mag_cur is
+select m.quantita
+  from magazzino m, libro l
+  where l.prezzo > p_prezzo
+  and m.stato = 'DISPONIBILE'
+  and m.isbn = l.isbn
+for update of quantita;
+begin
+open mag_cur;
+loop
+	fetch mag_cur into v_qnt;
+ 	exit when mag_cur%notfound;
+	v_qnt := v_qnt + p_quantita;
+ 	update magazzino set quantita = v_qnt
+        where current of mag_cur;
+end loop;
+close mag_cur;
+exception
+when others then
+raise_application_error(-20102,sqlerrm);
+end;
+/
+
+
+
+
+
+
+
+
+
+create or replace procedure esercizio2(
+v_paziente paziente%rowtype;
+v_costo prestazioni.costo%type;
+cursor ric_cur is
+	select p.costo, r.data_inizio, 
+		r.data_fine, pz.nome
+	from pazienti pz, prestazioni p,
+		ricoveri r, erogazioni e
+	where pz.cf = e.cf
+	and e.cf = r.cf
+	and e.cod = p.cod
