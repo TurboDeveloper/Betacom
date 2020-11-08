@@ -1,10 +1,12 @@
-ES
-in ingresso riceve quantita(magazzino), prezzo(libro)
+ESERCIZIO 1
+TESTO:
+In ingresso riceve quantita(magazzino), prezzo(libro)
 modifichiamo la quantita in base al magazzino e
 incrementiamo la q solo quando i prodotti sono disponibili
 dove prezzo < 10 euro
 stampiamo libro x avevano q vecchia -> nuova
 
+CODICE:
 create or replace procedure esercizio_procedura(p_quantita number, p_prezzo number) as
 v_qnt magazzino.quantita%type;
 cursor mag_cur is
@@ -29,23 +31,98 @@ when others then
 raise_application_error(-20102,sqlerrm);
 end;
 /
+---------------------------------------------------------------------------------------
+
+ESERCIZIO 2
 
 
+CODICE:
 
-
-
-
-
-
-
-create or replace procedure esercizio2(
+create or replace procedure costi as
 v_paziente paziente%rowtype;
+v_paziente_max paziente%rowtype;
 v_costo prestazioni.costo%type;
-cursor ric_cur is
-	select p.costo, r.data_inizio, 
-		r.data_fine, pz.nome
-	from pazienti pz, prestazioni p,
+v_costo_max prestazioni.costo%type;
+v_ricovero ricoveri%rowtype; 
+v_ricovero_max ricoveri%rowtype;
+v_durata number(4);
+v_erogazione erogazioni%rowtype;
+cursor cur is
+	select p.costo, r.*, pz.*,e.*
+	from paziente pz, prestazioni p,
 		ricoveri r, erogazioni e
-	where pz.cf = e.cf
-	and e.cf = r.cf
+	where pz.id_paz = e.cf
+	and pz.id_paz = r.cf
 	and e.cod = p.cod
+begin
+open cur;
+loop
+	fetch cur into v_costo, v_ricovero, 
+		v_paziente ,v_erogazione;
+	exit when cur%notfound;
+	v_durata := v_ricovero.data_fine - v_ricovero.data_inizio;
+	if v_durata > 7 then
+		v_costo := 20 + v_costo - (v_durata * 2);
+	else
+		v_costo := 15 + v_costo - (v_durata * 1.5);
+	end if;
+ 	if v_costo > v_costo_max then
+		v_costo := v_costo_max;
+		v_paziente_max := v_paziente;
+		v_ricovero_max := v_ricovero; 
+	end if;
+	where current of cur;
+end loop;
+close cur;
+dbms_output.put_line('Costo massimo: ' || v_costo_max);
+exception
+when others then
+raise_application_error(-20102, sqlerrm);
+end;
+/
+
+create or replace procedure costi as
+v_paziente paziente%rowtype;
+v_paziente_max paziente%rowtype;
+v_costo prestazioni.costo%type;
+v_costo_max prestazioni.costo%type;
+v_ricovero ricoveri%rowtype; 
+v_ricovero_max ricoveri%rowtype;
+v_durata number(4);
+v_erogazione erogazioni%rowtype;
+cursor costi_cur is
+	select p.costo,pz.nome_pz, cursor(select * from ricoveri r 
+						where r.cf = pz.id_paz)
+		 r.*, pz.*,e.*
+	from paziente pz, prestazioni p,
+		 erogazioni e
+	where pz.id_paz = e.cf
+	and pz.id_paz = r.cf
+	and e.cod = p.cod
+begin
+open costi_cur;
+loop
+	fetch costi_cur into v_costo, v_ricovero, 
+		v_paziente ,v_erogazione;
+	exit when costi_cur%notfound;
+	v_durata := v_ricovero.data_fine - v_ricovero.data_inizio;
+	if v_durata > 7 then
+		v_costo := 20 + v_costo - (v_durata * 2);
+	else
+		v_costo := 15 + v_costo - (v_durata * 1.5);
+	end if;
+ 	if v_costo > v_costo_max then
+		v_costo := v_costo_max;
+		v_paziente_max := v_paziente;
+		v_ricovero_max := v_ricovero; 
+	end if;
+	where current of costi_cur;
+end loop;
+close costi_cur;
+dbms_output.put_line('Costo massimo: ' || v_costo_max);
+exception
+when others then
+raise_application_error(-20102, sqlerrm);
+end;
+/
+

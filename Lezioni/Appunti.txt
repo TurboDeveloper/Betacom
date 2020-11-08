@@ -1869,6 +1869,76 @@ DDL-GENERATION(in file xml proj JPA)
 -> create-or-extend-tables
 -> drop-and-create-tables
 
+---------------------------------------------------------------------------------
+JPQL(Java Persistance Query Language)
+Simile a SQL solo che interroga gli oggetti, il from è riferito agli oggetti non tabelle
+
+VANTAGGIO ORM
+no statement, no resultset, no connessioni a db
+
+Relazioni ORM
+-> Many-to-one 
+-> One-to-Many
+-> Many-to-Many
+
+-----------Ereditarieta Java/SQL-----------------
+@Inheritance
+definiamo noi dove inizia la catena di ereditarieta che vogliamo nel db
+
+
+
+
+MODULO RICERCA
+1-IL PRODOTTO CHE HA VENDUTO DI PIU
+2-I PRODOTTI PIU COSTOSI
+3-IL VENDITORE DATI
+4-DATI TOTALE -> TABELLA DB
+
+
+---------------------------------------------------------------------------------
+TOMCAT
+Necessarie variabili d'ambiente
+-> JAVA_HOME
+-> CATALINA_HOME
+
+CHE COS'E
+Web Container -> applicativo che gira su un server, lo scopo è da fare un involucro per i client,
+fornire l infrastruttura per comunicare con i client
+
+DIFFERENZE APP-SERVER/WEB CONTAINER:
+APPLICATION SERVER: Meccanismi di pooling(gestisce carichi di lavoro)/ 
+		supporto a tutte le tecnologie(sono anche web container ma non viceversa)
+WEB CONTAINER: Versione semplicata/legera di un App.Server - fornisce elementi base per un app web completa
+
+DIFEFRENZE SERVER/APP-SERVER
+Server - macchina fisica che contiene l infrastruttura tecnica sia hardware ce sorfware capacr di comunicare con i client
+Application server/web container -> Applicativi che servono per compilare in maniera dinamica le applicazioni
+
+Mondo Web
+-> applicazone statica (HTML)
+-> applicazione dimanica (JAVA) -> compilata e mandata in esecuzione da un web container 
+-> PHP -> non ideale per app complesse
+-> Mondo Microsoft
+
+DIRECTORY TOMCAT
+-bin strumenti funzionamento
+-webapp contiene le app gia deployate
+-conf file xml configurazione(importante server xml)
+-work ci sono i sorgenti dei file compilati delle pagine web dinamiche(come html)
+
+MANAGER APP(LOCALHOST:8080)
+-ID di sessione (associato al browser con la quale navighiamo)
+-Expire session (dopo tot tempo mi scade l id di sessione)
+-Reload (Evita di riavviare il server): 
+	1)solo se si modificano le classi di java
+	2)solo se si modifica xml di config
+-WAR file (Web archive) equilvalente del file jar per le app web(contiente tutti file di progetto) 
+
+SESSIONI
+Quando termina
+1)Scade la sessione
+2)Logout
+3)Chiudere tutte le istanze del servizio dal browser
 
 
 
@@ -1876,9 +1946,298 @@ DDL-GENERATION(in file xml proj JPA)
 
 
 
+SCALARE -> parto con un server solo e arrivo ad es 5, dunque serve un bilanciatore di carico
+
+
+-----------------JAVA ENTERPRISE---------------------------------------------
+Utile per creare app distribuite(concetto client-server)
+Tutto gia implementato in modo thread safe
+Sono tutte scalabili
+
+
+1)Servlet 
+Componente Enterprise (Interfaccia)
+
+Che cos'e -> Classe che implementa Servelet e estende una classe(HttpServlet): componente che risiede sul server
+	HttpServlet: specializzata nella gestione del protocollo HTTP
+
+SCOPO-> intercettare le richieste che arrivano da parte dei client - cattura eventi(Controller)
+(NB necessario che il componente sia compilato da un webcontainer o appserver(Jboss/Servelet))
+
+DOVE SI PONE: tra la BusinnesLogic e il DataLayer (PresentationLayer dove View e Controller)
+	Pagine HTML/JSP -> Servelet -> | Facade ->BusinnesLogic -> | DAO -> Database
+
+Esiste anche GenericServelet non si utilizza quasi mai
+
+------------Ha un suo ciclo di vita---------------------------
+1) void init() -> inizializzare la servlet quando arriva la richiesta
+	richiamato una solva volta alla prima richiesta
+
+  -ServeletConfig getServeletConfig() -> serve per leggere gli eventuali parametri di configurazione
+  	scritti all interno di un file chiamato: web.xml (descrittore di deploy: caratteristiche generali di progetto)
+	puo essere passato a init(ServeletConfig config) -> se cosi allora prima si chiama config e poi fa l init	
+
+  -String getServeletInfo() -> dentro web.xml si possono mettere info sul componente creato
+
+2) void service(ServeletRequest request, ServeletResponse response)
+	tramite questo metodo la servelet gestisce tutto
+	chiamato una volta per ogni richiesta
+
+3) void destroy() -> deiniazializzata Servelet
+	è l appserver o webcontainer che richiama il destroy (se reload o shutdown)
+
+NB :Perche lato web java alte prestazioni:
+perche il componente che riceve le richieste viene inizializzato
+ una volta sola durante i ciclo di vita del progetto
+
+
+-----------HttpServlet---------------------------------------------------------------------
+
+- void init()
+- String getServeletInfo()
+
+- void doGet(HttpServeletRequest request, HttpServeletResponse response)
+- void doPost(HttpServeletRequest request, HttpServeletResponse response)
+	NB:implementazione del metodo service() della Servelet generica
+
+void destroy()
+
+POST -> Invia dei dati al server tramite(per forza)l' header(http) 
+	i dati vengono nascosti(moduli registrazione, login) QueryString nascosta
+GET  -> Puo ottenere i parametri della richiesta direttamente nell url allora QueryString = (? + robe)
+		in chiaro
+PUT
+DELETE
+se passo richiesta get a post -> Error 405
+
+ServeletException
+	tiene traccia di tutte le eccezzione
+IOException 
+	quando si invia la risposta il formato del file potrà essere
+	MIME-MultipurposeMailExtenxion
+		-> html
+		-> txt
+		-> xml
+		-> json
+	
+tipo di codifica per pagine
+- default ISO8859-1
+
+Per inviare le risposte si utilizza un Buffer di risposta
+con dimensione di default di 8kb (in caso di overflow si incrementa il valore del buffer)
+
+----------------------------------------------
+webapp -> le cartelle sono: radice del contesto del progetto
+all interno della cartella ma fuori da WEB-INF è tutto webcontent
+Se metto pagina html chiamata index -> sara la pagina di avvio
+
+---------------HTML------------------------------------------------
+no case sensitive
+<!doctype html> -> HTML5
+
+<html>
+
+<head> si inseriscono metatag (autore titolo)
+<title>Primo esempio</title>
+</head> 
+
+
+<body> -> tutto quello che si visualizza nella pagina
+<h3>   -> TAG SEMANTICO (h vanno da 1 a 6, 1 il piu grande e più importante)
+
+<section> -> SEMANTICO
+<div> ->NON SEMANTICO [Divisore]
+<p>   ->NON SEMANTICO [Paragrafo]
+
+
+<form action="/esempio/urlRichiesta" method="get"> action=""[chi deve ricevere le informazioni]
+root/url 
+tr table row
+td cella della tabella
+placeholder="Inserire il cognome.." :testo che sparisce
+</body>
+</html>
+--------------------DIFFERENZA TAG 1-----------------------------------------------------------------
+TAG SEMANTICI
+Da il valore semantico al titolo, quindi il browser quando lo legge riconosce che è un titolo
+Lo spider lo vede
+Piu tag semantici ho, più ho possibilita di indicizzare la pagina
+
+TAG NON SEMANTICI
+Non da nessuna informazione sul titolo
+
+Contano di più il contenuto che non le keywords che si mettono in alto
+---------------DIFFERANZA TAG 2----------------------------------------------------------------------
+TAG A BLOCCO
+Tag che una volta che li definisco vanno automaticamente a caso
+  -> <p> 
+  -> <div>
+
+TAG IN LINEA
+Si allineano uno di fianco all altro
+	-> href
+	-> a
+In CSS si usano i float per sistemare i tag
+-------------------------------------------------------------------------------------
+- <a> ADDRES
+-href link
+
+
+------------ECLIPSE WEB-----------------------------------------------------------------
+con i welcome file possiamo decidere quali sono le pagine di avvio per ogni tipologia di utente
+
+Posso usare annotation per mappare le servlet al posto 
+
+
+Filer : Servlet + despacth componente (rimanda i parametri in ingresso ad un altro componente)
+Listener : Attende eventi sul web
+
+---------DESCRITTORE DI DEPLOY---WEB.XML-------------------------------------------
+1) Descrizione applicazione : tutte le meta informazioni
+2) Parametri inizializzazione
+3) Mappatura Servlet - Filter - Listener
+4) Timeout di sessione
+5) Welcome File
+6) Mappatura Errori: quando si verifica errore 404.. o eccezioni richiama una pagina predefinita
+7) Icone sul sito
+8) Regole di sicurezza: quali sono utenti possono accedere a parti riservate
+
+!!!I NOMI DEI FILE SONO CASESENSITIVE!!!
+TAG 
+<display-name> MimmoProject </display-name>
+<description> tutto quello che voglio </description>
+
+<session-config>
+	<session-timeout> 20 </session-timeout>
+</session-config>
+
+<welcome-file-list>
+	<welcome-file>index.html</welcome-file>
+	<welcome-file>index.jsp</welcome-file> -> cosi la prima che trova carica
+</welcome-file-list>
+
+<error-page>
+	<error-code>404</error-code>
+	<location>/error404.html</location>
+</error-page>
+
+Posso mettere anche le eccezioni
+<error-page>                      (Throwable: prende anche robe come cicli infiniti
+	<exception-type>java.lang.Exception</exception-type>
+	<location>/exception.html</location>
+</error-page>
+
+GETSIONE DELLE RISPOSTE
+<mime-mapping>
+	<extension>html</extension>
+	<mime-type>text/html</mime-type>
+</mime-mapping>
+
+ICONE
+<icon>
+<small-icon>/path-immagine.gif o .png</small-icon> 
+<large-icon>/path-immagine.gif o .png</large-icon>
+</icon>
+
+ <servlet>
+	<description>Servlet</description>
+	<load-on-startup>1</load-on-startup> ->ordine con la quali eseguire le servlet
+	<servlet-name>prima</servlet-name>
+	<display-name> MimmoProject </display-name>
+	<servlet-class>it.betacom.controller.PrimaServlet</servlet-class>
+	<init-param>//parametri da leggere come parametri in init()
+		<param-name>test</param-name>
+		<param-value>testodiprova</param-value>
+	</init-param>
+</servlet>
+
+<servlet-mapping>
+	<servlet-name>prima</servlet-name>
+	<url-pattern>/urlRichiesta/* </url-pattern>
+</servlet-mapping>
+NB: con l * tutto quello che cè dopo url richiama questa servlet
+
+
+PAGINE JSP 
+Equivalente delle servlet ma scritte in HTML (con estension .jsp)
+<servlet>
+	<description>Servlet</description>
+	<load-on-startup>1</load-on-startup> ->ordine con la quali eseguire le servlet
+	<servlet-name>prima</servlet-name>
+	<display-name> MimmoProject </display-name>
+	<jsp-file>/controllo.jsp</jsp-file>
+</servlet>
+<servlet-mapping>
+	<servlet-name>prima</servlet-name>
+	<url-pattern>/controllo.jsp</url-pattern>
+</servlet-mapping>
+
+FILTRER -> (Servlet + Dispatch dei dati)
+<filter>
+	<description>Servlet</description>
+	<load-on-startup>1</load-on-startup> ->ordine con la quali eseguire le servlet
+	<filter-name>prima</filter-name>
+	<display-name> MimmoProject </display-name>
+	<servlet-class>it.betacom.controller.FilterClass</servlet-class>
+</filter>
+<filter-mapping>
+	<servlet-name>prima</filter-name>
+	<url-pattern>url</url-pattern>
+</filter-mapping>
+
+LISTENER VS SERVLET 
+Listener in attesa di eventi(shudown, pause...)
+Servlet viene richiamata in maniera esplicita
+
+<listener>
+	<listener-class>it.betacom.listener.ListenerClass</listener-class>
+</listener>
+
+PARAMETRI INIZIALIZZAZIONE
+Parametri associati ad uno solo componente(Servlet/Filter)
+
+PARAMETRI DI CONTESTO
+da tutti i componenti(CONTROLLER) del progetto posso accedere a questi parametri
+(possiamo mettere ad esempio dati connesione db)
+<context-param>
+	<param-name>contextparam</param-name>
+	<param-value>paramcontesto</param-value>
+</context-param>
+
+
+--------------------------------------------------------------------------------------
+
+JNDI
+Tecnica per leggere i parametri di configurazione direttamente dall application server
+Danno nomi univoci in modo da non fare piu riferimento alle locazioni dei driver
+
+<resource-ref>
+	<description>JDBC Connection Pool><description>
+	<resource-ref-name>jdbc/oracle</resource-ref-name>
+	<resource-ref-type>javax.sql.Datasource</resource-ref-type>
+</resource-ref>
+
+----------DATASOURCE IN JAVA---------------------------------------------
+javax.sql.Datasource -> simile alla connection dei jdbc ma va gestita dall appserver
+
+Context contesto = new InitialContext();
+Context webContext = (Context)contesto.lookup("java:env/var"); -> riceve quello che è stato
+DataSource ds = (DataSource)webContext.lookup("jdbc/oracle");
+Connection conn = ds.getConnection();
+
+
+-------HTML-
+<a> ADDRES
+	href link
 
 
 
+
+--ESERCIZIO--
+select max(sum(tot)) from (select sum(tot),v.id from venditore v,modulo m, venditore_modulo vm
+where v.id = vm.venditore_id
+and vm.moduli_cod_mod = m.cod_mod
+group by v.id)
 
 
 
