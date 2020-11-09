@@ -1846,7 +1846,7 @@ NB:finche non ho finito l elaborazine dei dati devo stare online
 permette di eseguire chiamate a procedure
 -> sql : {call nomeP(..)}
 
------------JVA: Java Persinstance Api------------
+-----------JPA: Java Persinstance Api------------
 Insieme di classi metodi, sono strumenti ORM(OBJECT RELATIONAL MAPPING) che aiutano 
 grandi quantà di dati su db
 
@@ -2239,14 +2239,36 @@ where v.id = vm.venditore_id
 and vm.moduli_cod_mod = m.cod_mod
 group by v.id)
 
+FOGLI DI STILE CSS
+E' un linguaggio di formattazione che va a sostituire vecchi tag html
+Può essere:
+- esterno
+- interno
+- in linea
+
+UN ALTRO DI QUESTO -> BOOTSTRAP
+-continer ->griglia 12x12
+
+
+!!!!CON OVERRIDE NON POSSO RILANCIARE ALTRE ECCEZIONI
+-> quindi rilancio una nuova eccezione dal metodo
+
+-----------FILTER----------------------------------------------------------
+[Interface]: E' come una servlet(intercetta i dati di una richiesta) pero fa una dispatch
+Utile per creare il concetto di controller
+DIFFERNZA:
+Il filtro intrcetta l evento della chiamata(tramite il mappig) non come la servlet che viene chiamata
+SCOPO:
+Si inserisce tra la chiamata e il componente businness
+METODI:
+- init(FilterConfig config)
+- doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+	chain: effettua il reindirizzamento dei dati
+- destroy()
 
 
 
 
-
-
-
-
-
-
-
+ESERCITAZIONE
+immagini [webcontent/img 5img]
+tab db: url | descrizione
