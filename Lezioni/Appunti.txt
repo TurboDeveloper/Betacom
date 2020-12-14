@@ -2268,7 +2268,612 @@ METODI:
 
 
 
+--------------------------------------------------------------
+JSP(Java Service Page)
+Normale pagina HTML MA pagina dinamica(non come HTML) viene compilata lato server
+(web container, app ser). Capacità di contenere codice Java all interno della pagina
+!!!SCRIPLET:componente che ci permette di scrivere dinamicamente!!!
+-> RISULTATO -> SERVLET
+Non serve mapparli nel file web.xml
 
-ESERCITAZIONE
-immagini [webcontent/img 5img]
-tab db: url | descrizione
+Stesso componente ma SCOPI diversi
+JSP: Presentation Layer[sempre]
+Servlet:PL/Businness component
+
+<%@ -> DIRETTIVA: Dare direttive di compilazione(mex messaggi a web container o app server)
+charset: inerente alla pagina
+pageEncoding: come viene inviata la risposta
+COMMENTI
+<!-- commento HTML -->
+<%-- commento JSP --%> (commento che non si vede sul client)
+Negli scriplet
+<%
+	//commento java
+%>
+
+<meta http-equiv="refresh" content="60"> FORZARE UN REFRESH TEMPORIZZATO
+<%= ESPRESSIONE
+<%! DICHIARAZIONE
+
+NB OGGETTI IMPLICITI: Non ce bisogno di definirli perche i web container riconoscono che tipo di oggetto sa
+NB Le variabili dichiarati nello scriplet hanno visibilità nello scriplet, se le dichiaro ha visibilità di contesto
+	(finche non distruggo l applicazione rimane inizializzata)
+
+CICLO DI VITA[vale lo stesso per le servlet]:
+- void jspInit()
+- void _jspService(HttpServerRequest rq, HttpServerResponse rs)
+	[no richiamato, no sovrascritto]
+	Qui possono arrivare sia richieste get che post
+
+	//se voglio tenere sotto controllo i metodi posso fare cosi
+	<% if(request.getMethod().equals("GET")){
+		response.sendRedirect("index.jsp")
+	%>
+
+- void jspDestroy()
+
+@se voglio fare l override di jspinit e jspdestroy lo devo fare nella dichiarazione
+
+---------------------------------------------
+OGGETTI IMPLICITI
+NB:nella dichiarazione non posso utilizzare oggetti impliciti a meno di pagecontext
+Visibilità:
+-application[per azzerare reload o azzerare]
+-session
+-page 
+-view NO in jsp
+-request [nasce e muore con la richiesta]
+
+P1		P2
+menu		menu
+Oggetto -> 	NO
+SI		refresh NO
+
+OGGETTI IMPLICITI VISIBILITA PAGE 
+-<% scriplet%>
+-out 	   -> javax.servlet.jsp.JspWriter
+-config    -> javax.servlet.ServeltConfig
+-exception -> java.lang.Throwable
+-page[equivalente di this]   -> java.lang.Object
+-response  -> javax.servlet.http.HttpServletResponse
+-pageContext -> javax.servlet.jsp.PageContext[scopo:definire tutti gli obj impliciti]
+		(chiama in automatico il webCon per i riferimenti degli altri obj impliciti
+		 gestisce anche il buffer di risposta)
+
+In enterprise i model sono chiamati "Bean"
+
+OGGETTO IMPLICITO VISIBILITA SESSION
+-session -> javax.servlet.http.HttpSession
+
+
+OGGETTO IMPLICITO VISIBILITA REQUEST
+-request ->javax.servlet.http.HttpSession
+
+
+OGGETTO IMPLICITO VISIBILITA APPLICATION
+-application -> javax.servlet.ServletContext
+
+OBJ IMPLICITO
+exception: non puo essere usato nel body(per farlo devo definire la pagina jsp come pagina di erroe)
+
+
+<%@page buffer="20000"%>
+<%
+	response.setBufferSize(200000);
+%>
+
+set contentType("plain/text");
+
+FORM MULTISTEP
+P1	P2	P3 -> registrazione
+->	->	-> -> finake
+i dati devono rimanere bufferizzati -> page autoFlush = "false" + response.flushBuffer()
+<%@ page autoFlush = "true" (evita di mandare in overflow il buffer 
+	ogni cambio di pagina si refresha il buffer)
+
+
+
+-response.isCommitted() -> utile quando reindirizzamenti multipli ad una pagina
+-response.sendRedirect()
+
+Nella servlet c è getServletInfo()
+dunque nella jsp posso fare 
+<%@ page info="descrizione jsp"%>
+<%
+	((Servlet)page).getServletInfo();
+%>
+
+-----REQUEST---------
+metodi
+- String getParameter()
+- getParameterValues() ->array
+- getParameterNames() -> enumeration
+
+	<form action="" method=
+		<input type"text" name"anagrafiga"<Nome</br>
+		<input type"text" name"anagrafiga"<Cogome</br>
+		<input type"text" name"anagrafiga"<Indirizzo</br>
+		altri 30
+	-> serve getParamValues("anagrafica")
+
+	<form action="" method=
+		<input type"text" name"nome"<Nome</br>
+		<input type"text" name"cognome"<Cogome</br>
+		<input type"text" name"indirizzo"<Indirizzo</br>
+		altri 30
+	qui serve getParamNames()
+
+- getContentLength
+- getContentType()
+- getMethod() (post,get)
+
+-------APPLICATION---------
+Definire elementi globali del progetto che rimangono tali per tutto il ciclo di vita del progetto
+
+- application.setAttribute("test",cliente);
+- Cliente c = application.getAttribute("test");
+- application.removeAttribute
+- getServerInfo()
+-------SESSION-------------------------------------------------
+NELLE JSP LA SESSIONE è GIA ATTIVA E LA POSSO DISATTIVARE
+NELLA SEVRLET LA DEVO ATTIVARE
+	- doPost()
+		HttpSession session = request.getSession();
+Operazioni
+- setAttribute("username", utente.getUsername())
+
+	if(session.getAttribute("username") == nll{
+		response.sendRedirect("login.jsp");
+	}
+oppure
+	carrello --> List<Prodotti>
+	setAttribute("spesa", carrello)
+	Carrello car = session.getAttribute("spesa");
+	session.removeAttribute("spesa");
+	session.invalidate();
+
+COOKIE-> memorizzano su pc delle metainformazioni della navigazione
+-------------------
+cè costruttore del Date con millisec
+new Date(session.getCreationTime())
+GregoriaCalendar c = new GregorianCalendar();
+c.setTime(
+
+
+
+LISTENER
+- SessionListener
+- ContextListener
+
+
+-------------------------------
+UTILITA
+Compattare:
+[dir:WEB-INF]jar -cvf ../nomeapp.war *
+se si lanciamo ci crea l archivio
+Scompattare
+jar -xvf nomeapp.war
+
+
+
+
+-------------------------------------------
+Servono per dare info aggiuntive alla pagina
+DIRETTIVA
+<%@ -> compilata in fase di traduzione e basta
+	<%@ include file="head.html" %>
+AZIONI
+<jsp: -> valutata in maniera dinamica ad ogni richiesta
+	<jsp:include page="head.html"></jsp:include>
+
+->include : le parti di una pagina le gestisco in modo autonomo in modo che poi	
+	nella pagina ci monto dentro i pezzettini
+
+<jsp:foward
+---------------------------
+
+BEAN
+Sono delle classi normalissime che servono come strumento di mappatura dei dati
+hanno diversi nomi Bean/Entity/
+
+<jsp:useBean id="cliente" class="it.betacom.businesscomponent.model.Cliente" 
+scope="[stesse per gli ogetti impliciti]" type="it.betacom.businesscomponent.model.Persona"/>
+
+-  <jsp:setProperty /> = cliente.setNome()
+<jsp:setProperty name="cliente" property="nome" value="<%= request.getParameter()%>" />
+<jsp:setProperty nome="cliente" property="*" /> -> popola il bean cliente automaitamente
+NB:
+	[attributi clinte devono corrispondere con i nomi della form]
+	[non funziona con le date]
+
+
+----------CLASSI Assembler---------------
+Classi che tramite dei metodi set settano tutte le proprieta del bean
+
+
+-  <jsp:getProperty name="cliente" property="nome" />
+NB non solo recura i dati ma invia anche la risposta al client (out.println())
+
+---------CONVERIRE DATA UTIL IN SQL
+new java.sql.Date(cliente.getNascita().getTime());
+
+
+
+----------------MAVEN---------------------------
+Tools di automazione
+download e settaggio automatico delle librerie
+
+---------------HYBERNATE-----------------------
+Semplifica la gestione con il db
+
+SessionFactory
+Fornisce un modulo sincronizzato 
+Transaction
+- Linguaggio HQL[Hybernate query language]
+
+TIPI DI OPERAZIONI DDL
+-drop-and-create
+- create-drop
+- none
+- create
+- update
+- valide
+
+--------HQL:Hibernate Query Language
+Query query = session.createQuery(HQL);
+List<?> risultati = query.list();
+
+- String hql = "from Impiegato i"
+- String hql = "select i.nome, i.cognome from Impiegato i where
+	i.id = :id_imp"
+   Query query = session.createQuery(HQL);
+   query.setParameter("id_imp", 1);
+   List<?> risultati = query.list();
+
+- String hql = "insert into Fornitore(nome, cognome) select nome, cognome from Fornitore2";
+   Query query = session.createQuery(HQL);
+   int modifica = query.executeUpdate();
+
+- String hql = "update Impiegato i set i.stipendio = :stipendio where i.id = :id_imp";
+  Query query = session.createQuery(HQL);
+  query.setParameter("stipendio", 10000);
+  query.setParameter("id_imp", 1);
+  int modifica = query.executeUpdate();
+
+- String hql = "delete from Impiegato i where i.id = :id_imp";
+
+-------------JUNIT-------------------------
+I test in Java vengono scritti maggiornamente in Junit
+Framework per testare
+fail(mex) -> induce il test a fallire
+
+-> Assert : Componente che serve per impostazioni durante il test
+	Parametro 1 utile per la documentazione del testing
+
+	- assertEquals		("test 1.1: Verifica ...", 10, metodo());
+     	- assertFalse/AssertTrue(test
+	- assertNull/NotNull   	(test .., obj/metodo)
+	- assertSame		(test.. , metodo1, metodo2) -> ritorna true se simili
+
+NB: SIMILI se appartengono alla stessa catena di ereditarieta
+
+FASE DI INIZIALIAZZAZIONE TEST
+Per fare diversi test simili tra di loro
+posso sovrascirvere metodi di init per creare oggetti da testare
+
+public class EsempioTest extneds TestCase()
+private Cliente c;
+  @Override
+- setUp()
+	c = new Cliente();
+	c.nome = "Massimo";
+	c.cognome = "Rossi";
+	c.indirizzo = "Via Milano";
+
+  @Override
+- tearDown{
+	c= null;	
+}
+
+publi void testCliente(){
+	Assert.assertEquals("..", metodo(), c)
+(chiama tear down)
+
+publi void testCliente2(){
+	c.indirizzo = "Via Padova, 4")
+	Assert.assertEquals("..", metodo(), c)
+
+SetUp e TearDown vengono chiamati sempre durante l esecuzione di un metodo test
+
+-----JUNIT 4-------------
+@Test(timeout = 3000) -> dopo 3 secondi il test fallisce
+
+@BeforeClass -> all inizio di tutti i test(globale per tutti i test)
+static metodo -> Esempio: conn DB
+
+@Before
+setUp
+
+@Test1
+@Test2
+@Test3
+
+@After
+tearDown
+
+@AfterClass
+static metodo
+
+-------JUPITER---------
+@Ignore -> non esegue il test ma ci fa vedere che è da implementare
+@Test
+metodo
+
+---------------JAVASCRIPT---------------------
+Puo essere compilato lato client(browser) o server(strumenti node.js)
+Lavora con elementi del dom(elementi di html) 
+Lavora tanto con gli eventi della pagina
+
+---------------------------------
+I link esterni ad un progetto vanno inseriti in una section
+- ul : unordered list
+
+INCLUDE:
+<jsp:include page="nav.jsp"/>
+PER ANNOTAZIONE
+<%@include file="CDN.html" %>
+---------------CSS----------------
+1) indicare quali tag da formattare
+	posizione: Relativa (in modo relativo posso disporre nella pagina)
+2) body 
+	- indicare i margini
+
+id: univico -> nel css per richiamare ci vuole #
+class: ci possono eseere piu elementi
+
+MEDIAQUERY -> quando la dimensione dello screen scende sotto un limite: possiamo impostare
+condizioni differenti per la formattazione della pagina
+@media screen and(max-width: 760px)
+
+
+-----------REGEXP------------------
+Tutte le possibili combinazinìoni
+https://developer.mozilla.org/it/docs/Web/JavaScript/Guida/Espressioni_Regolari
+
+esempi
+- /^[agfz] $/ primo carattere deve essere uno diquelli
+- /^[a-zA-Z ,.'-]{2,30} $/ validita per il nome
+- (?=.*[a-z]) almeno una lettere minuscola
+- (?=.*[a-z])(?=.*[A-Z])(?=.*[\d]) almeno una lettere minuscola, maiuscola, val nuemrico
+- [\w] vale tutto
+
+<img src="img/<%=a.getImg()%>" alt="Responsive image" class="img-thumbnail">
+
+WEB SERVICES
+
+- REST
+	Usati maggiormente(oiù veloce) si appoggia al prtocollo http
+	possono utilizzare diversi file di interscambio(XML,JSON,HTML)
+	Librerie: -jaxrs
+	USA WADL + XML/JSON + HTTP
+- SOAP
+	Basato su schemi XML- dunque utilizza un protollo interno (più sicuro)
+	Puo scambiare dati solo in formato XML
+	Librerie: -jaxws
+	USA WSDL + MESSAGGI XML + QUALSIASI PROTOCOLLO
+
+CORS(Cross origin resource sharing) 
+mexccaniscmo che usa header del protocollo http,
+aggiunge delle informazioni addizionali a http per le norme di accesso a server
+
+JSF
+framevork sulla parte JSP 
+El -> expression language
+si basa sulla jsp ma deve essere .xhtml
+nate perche separano inn maniera netta il presentation layer dalla parte di businness logic
+
+
+DIPENDENZA INJECTION
+Capacita del contesto di generare in automatco le istanze del codice senza istanziarle
+in maniera esplicita
+import javax.inject.Named; -> @Named
+
+XHTML -> si appoggiano a validazioni xml
+HTML5 -> si appoggia a DTD w3 per descrivere i tag utilizzati in html
+
+INIEZZIONE DI DIPENDENZA
+Il riferimento delle classi con @Named le chiamo con la lettera minuscola
+@Named
+TemaUI
+-> con temaUI faccio riferimento alla istanza del tema
+
+se mettp getTema() -> si sottointende che ci sia un campo di istanza
+#{temaUI.tema}
+
+<p:inputText value="#{utente.nome}"  -> si attiva la inject
+
+BINDING associazione diretta di un componente back end con una proprieta frontend
+
+WEBSERVICE 
+Sono componenti che espongono delle api(url da richiamare), 
+vantaggio - li posso chiamarare da qualsiasi tipo di architettura
+
+
+VERBI HTTP
+-get (leggere)
+-post (scrivere)
+-put (aggiornamenti)
+-delete (cancellare)
+
+@Consumes() -> chi deve madare la richiesta
+@Produces(MediaType.APPLICATION_JSON) -> cosa ritornA
+
+
+<f:ajax execute=".." render=".."/> 
+1 componente che elabora
+2 componente destinazione
+COMPONENTE PER CHIAMATE ASINCRONE -> HTTPXMLObject !!!!!!!!!!!!!!!!!!!!
+
+PERCORSO:
+1 - spolverata su OP (gestione file, serializzazione, XML)
+2 - sql (plsql, routine, query, creazione tabelle)
+3 - JDBC, ORM(JPA(java ee), Hibernate)
+4 - Livello WEB: Servlet, listener, JSP, filter
+5 - Utilizzati sempre i DP(factory, singleton, adapter)
+6 - Sviluppato un app basata su tre strati(MONOLITICO) con db oracle, dao
+	businness logic che gestiva, e presenation layer JSP(prettamente sincrono)
+7 - JSF(differenza con JPA, asincrono utilizzando AJAX)
+8 - HTML, CSS, BOOSTRAP
+DOPO AVER VISTO -> FRAMEWORK
+9- Spring - SpringBoot(microservizi) - Springcore
+10 -Angular consumare i web service che esponevano i dati
+
+CONTARIO APP MONOLITA
+-> MICROSERVIZI: ogni pezzo dell applicazione puo essere fatto in un linguaggio diverso
+
+TRANSAZIONE:
+Sono i dati modificati attraverso un comando DML posizionati sul segmento di rollback,
+e finche non eseguo un comando commit o rollback rimangono nella memoria PGA
+
+INTEGRITA REFERENZIALE
+eè un software che va a controllare che i dati siano coerenti con lo schema del db
+
+----------------------------------SPRING----------------------------------------------
+------------Spring Core----------------------
+-Lazy inizializaton:
+-Dipendencies Injection
+-POJO; Model base
+-IOC: Sara il contesto di esecuzione del framework a creare oggetti(POJO) per noi
+-DI
+
+------------Spring-Web-MVC--------------------
+Si basa su delle servlet predefinite
+Si scrivono meno righe rispetto alla cattura dei dati
+
+------------Spring Security-------------------------
+Gestione della sicurezza -> validazioni lato server, autorizzazioni, ecc..
+
+-----------Spring Cloud-----------------------------
+Gestisce servizi sul cloud come i server AWS sul cloud
+
+-----------Spring Boot------------------------
+Utile a creare applicativi complessi che espongono a api(microservizi)
+
+------------Spring-JDBC------------------------
+
+------------Spring-Data-----------------
+Simulare in gestione diretta ORM classici, tramite supporto di persistena JPA
+
+
+
+VISIBILITA' DEI BEAN SPRING
+Singleton -> Una istanza all interno dell applicativo
+Prototype -> Posso fare una copia dell elemento
+
+Colloquio
+DIPENDENCIES INJECTION(Per costruttore)
+Nella classe auto ce motore che viene passato nel costruttore dell auto,
+(in jva ci sarebbe un errore perceh non viene mai istanziato) ma nell xml mettiamo la dipendenza
+di auto a motore
+
+DIPENDENCIES INJECTION(Per metodo set)
+mettiamo una proprieta nella classe auto (mappata nel xml beans)
+
+DIPENDENCIES INJECTION(Per proprieta mappata)
+mettiamo una proprieta nella classe auto motore (mappata nel xml beans) con riferimento interno 
+al bean del motore
+
+PROPRIETA' AUTOWIRE
+Far decide in automatico al framework(contesto) quale iniezione di dipendenza utilizzare
+Autowire possibili
+-byName
+-byType
+-byConstructor
+
+EREDITA' IN SPRING
+parent="classe padre"
+
+ARCHITETTURA APPLICATIVO SPRING
+
+request -> Dispatcher servlet[controller] -> ModelAndView [fa da tramite tra il modello e la view che mostrerà l output]
+						ViewResolver[componente che tramite una mappatura genera la view
+DAO
+//ROWMapper esegue un ciclo sul risultato dell esecuzione della select
+
+JSTL
+LIBRERIA DI TAG CUSTOM PER AGGIUNGERE FUNZIONALITA
+Tramite dei tag lib è possibile richiamare funzionalita sugli oggetti, fromattazione sui dati
+
+c : CORE -> contiene i paradigmi base senza utilizzare gli scriplet
+fn : FORMAT -> format, formattare elementi interno alla pagina tramite funzini che modificano lo stato
+di qualcosa (upperCase, json..)
+fmt : contiene gli elementi di formattazione(date,numerici)
+x : XML -> gestire il parsing di xml
+
+<c:catch -> try/catch degli scriplet
+
+
+
+IMPIEGATO CHE GUADAGNA DI PIU select * from impiegato where stipendio = (select max(stipendio) from impiegato);
+IMPIEGATO CHE GUADAGNA DI PIU PER REPARTO
+IMMAGINE IMPIEGATO
+
+
+---------SPRING BOOT----------------------
+Nasce per automattizare la creazione dell architettura
+
+src/main/resources 
+static -> risorse statiche(css,js,img)
+templates -> risoluzione delle view(views del progetto precedente)
+application.properties -> prop come server port, porta db
+
+//errore classico: springboot cerca i componenti a partire dal pacchetto che abbiamo dato inizialmente
+
+@Repository -> intrerffaccia che contiene metodi per operazioni crud
+JpaRepository -> classico per tutti i rdbms
+
+String... -> il metodo puo ricevere n argomenti
+-------------------MYSQL--------------------
+
+PASSWORD MYSQL root@localhost: qP;J)+Vpa8a#
+mysqld -- console -> per attivaere il server
+mysql -u root -p -> per entrare in connessione
+
+MYSQL -> funziona con user
+\G -> forza un allineamento in grid
+
+---------------------------------------------
+ORACLE DB
+Con il termine database (d’ora in poi DB) si indicano i file fisici in cui sono memorizzati i dati, 
+mentre per istanza si intende l’insieme delle aree di memoria e dei processi di background necessari ad accedere ai dati, ovvero al DB.
+ISTANZA -> Sono i dati del db ch rispettano i vincoli imposti dallo schema.. Istantanea del db
+SCHEMA -> uò avere più schemi. Ognuno di essi contiene tutti gli oggetti creati da un utente 
+	specifico del database. Questi oggetti possono includere tabelle, viste, sinonimi e altro
+TABLESPACE ->
+-------------------------------------
+
+----------------MongoDB-----------------------
+> use contatti   --> switched to db contatti
+> db  --> contatti
+
+> db.dropDatabase()
+> db.getUsers()
+
+db.createUser(
+{user:"turbo",
+pwd:"pass",
+roles:["readWrite","dbAdmin"]
+});
+
+> db.getCollectionNames()
+> db.createCollection("contatti")
+> db.contatto.find({$and: [{nome: 'Turbo'},{$or: [{cognome:'Rossi'},{username: 'ciccio'}]}]})
+ db.contatto.update({username:'mimmo'},{$set:{
+	... nome:'Ciccio',
+	... cognome:'Fumagalli',
+	... nascita: new Date(1998,1,1,3,2,12)}})
+
+> db.contatto.find({},{nome:1, _id:0})
+-------------------------------------------------
+
+Optional -> involucro generico per un oggetto
