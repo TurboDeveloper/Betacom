@@ -3194,15 +3194,88 @@ DATA BINDING/INTERPOLAZIONE -> {{valore}}
 PIPELINE -> utilizzta per contatenare una serie di operazioni da eseguire contemporaemente
 
 
----------------------CONSOLE BASH GIT------------------------------
+---------------------OPEN SHIFT------------------------------
+
+Open shift è una piattaforma di sviluppo per la distribuzione di container
+
+Ogni applicativo per girare ha bisogno di un suo ambiente ad hoc
+possibilità: o creo il server fisico cosi.. oppure virtualizzo
+
+Problema? Prestazioni della macchina virtuale
+Soluzione -> Ambiente DOCKER(container) - VIRTUALIZZAZIONE TRAMITE CONTAINER
+
+CONTAINER -> Simile alla macchina virtuale
+Com è fatto?
+
+	Indirizzo Pubblico
+	---------------------
+	Ambiente
+	---------------------
+	Strato basso : Kernel
+	
+	Cloud (AWS,Azure) - Forniscono pacchetti di virtualizzazione 
+
+Tolgo il problema di tirare in piedi un OS solo per un app,
+SCOPO rendere il piu leggero possibile il deploy del progetto
+
+Impacchetta tutte le dipendenze in modo tale da avere l app portabile
+
+Per comunicare serve un ORCHESTRATORE - KUBERNATES: 
+Gestisce i container
+  -bilanciua il carico
+	
+	KUBERNATES
+c1	c2	c3	c4
+
+Kubernates -> Sviluppato da Google
+
+OpenShift - Rilasciato da RedHat
+Scopo: Tramite Kubernates gestire in maniera semplificata la gestione dei container,
+	da la posssibilita agli sviluppatori di sfruttare tutte le potenzialità di kubernates
+
+Prime attivita
+ - ridimensionamento dei container(posso scalare l applicazione)
+ - la creazione di progetti(deploy)
+ - visualizzare registro
+ - controllare i carichi(richieste/CPU)
+
+-----------------------------------
+OpenShift CommandLine(OP)
+Scritta in Go
+
+Operazioni svolte sia da console web sia da linea di comando
+
+!!!!!!!!!!!!!!!
+Source to Image (S2I)-> Strumento che permette di creare automaticamente container docker 
+			tramite la lettura fatta del progetto sul git
+	GIT -> S2I -> Docker(Immagine Virtualizzata)
+Una volta utilizzato S2I bisogna utilizzare come Appserver WildFly
+
+Log Error -> si possono leggere dalla console di prima
+
+Per interagire con OpenShift:
+
+- Project : Wrapper per i namespace
+- Namespace : ambito delle risorse denominate, come l app deve essere distribuita dove sono contenuti:
+- Gruppi
+- Users
+
+- Pod -> Container eseguiti sullo stesso host
+	      condividono indirizzo IP
+- Service -> Organizzatore dei pod : Quando io chiedo una connessione al servizio, OpSH mi instrada
+		verso uno dei pod
+
+-Route -> Elemento necessario per instradare la comunicazioen del servizio
 
 
+Tutte le funzionalita openshift sono disponibili tramite un api rest
 
+--------------------------------------------------------------------------
 
+Webhook -> Chiamiamoli Trigger HTTP
+	sono callback http scatenate direttamente dalle modifiche alle immagini e al codice sorgente
 
-
-
-
+Replication Controller -> è tutto il meccanismo che gestice i pod creati
 
 
 
