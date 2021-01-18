@@ -2877,3 +2877,351 @@ roles:["readWrite","dbAdmin"]
 -------------------------------------------------
 
 Optional -> involucro generico per un oggetto
+
+
+-----------------NODE JS------------------------------
+E' un server(molto simile a tomcat che compila lato server java),
+che serve per compilare lato server javascript.. utilizza un compilatore di Google chrome,
+particolarmente efficente.. 
+input output asincrono -> fortemente basato su eventi
+utile sia per applicazioni con frontend /backend  oppure solo per app tutto javascript
+
+
+npm - node package manager
+configuratore dell ambiente di sviluppo(es dipendenze)
+
+npm install -g typescript (installiamo per tutti i progetti TypeScript)
+TIPESCRIPT: permette di avere una tipizzazione forte, cosa che non ha javascript
+
+npm install -g @angular/cli (installiamo la riga di comando di ANGULAR)
+Per agggiornare ANGULAR CLI
+npm install --save-dev @angular/cli@latest
+
+REPL(READ EVAL P LOOP) 
+npm install -g tsun 
+-> tsun verifica codice javascript 
+	es: 1 tsun
+            2 function saluta(nome:string):string{return 100} 
+	    3 ritorna errore perche ritorno deve essere string
+
+-----------JAVASCRIPT-----------
+compilato latp server (si puo creare backend) dunque con node js gira molto velocemente
+compilato lato client - func che ineragiscono con DOM
+
+DIFF: jsp linguaggio prettamente lato server, js il tutti e due
+
+STORICO DELLE VERSIONI JS
+ES5   ES6   TypeScript
+
+-ECMAScript 5 -> regular JavaScrit(supportato da tutti i browser)
+-ECMAScript 6 -> aggiornamento con l utilizzo di classi e moduli (OOP)
+-TypeScript   -> gestione dei tipi
+		-decorators(annotation in java, flag di funzionamento)
+		-imports
+		-utility i18n(internalizzazione dell applicazione)
+
+------------------------------------------------------------------
+dichiarazione var js -> var nome;
+var nome = 'mimmo'; -> diventa stringa
+
+ts -> var nome: string ;
+
+function stampa(nome:string):string{
+	return "Ciao" + nome;
+
+TIPI DI DATO TYPESCRIPT
+- var nome:string = 'turbo';
+- var anni:number = 22;
+- var laureato:boolean = true;
+- var skills:Array<string> = ['asp','xml','java'];
+- var skills:string[] = ['asp','xml','java'];
+- enum Ruolo {IMPIEGATO, MANAGER, ASSISTENTE};
+- var ruolo:Ruolo = Ruolo.IMPIEGATO;
+- enum Ruolo2 {IMPIEGATO = 3, MANAGER = 5, ASSISTENTE = 7};
+- var ruolo2:Ruolo = Ruolo2.3;
+
+- var qualisiasi:any = 'Mimmo';
+- qualsiasi = 1;
+- qualsiasi = [1,2,3];
+
+- function setNome(nome:string):void{
+	this.nome = nome;
+  }
+
+STAMPA CONSOLE
+system.out.print -> console.log(var);
+
+DEFINIZIONE CLASSI (ES6 - TP)
+- class:Impiegato{
+	nome:string,
+	cognome:string,
+	compensoOrario:number;
+	messaggio():void{
+		console.log("Ciao ", this.nome);
+	}
+	calcoloStripendio(ore:number):number{
+	return this.compensoOrario * ore;
+	}
+- var i: Impiegato;
+- i = new Impiegato();
+- i.nome = 'Max';
+- i.compensoOrario = 30.00;
+- i.messaggio();
+- i.calcoloStipendio(10);
+
+- class Auto{
+  }
+- var a = new Auto(); // costruttore implicito
+
+class Persona{
+	nome:string;
+	cognome:string;
+	eta:number;
+	//costruttore puo essere solo uno
+	constructor(nome:string, cognome:string, eta:number){
+		this.nome = nome;
+		this.cognome = cognome;
+		this.eta = number;
+	}
+	messaggio(){
+		console.log("Ciao" + this.nome);
+	}
+}
+
+- var p:Persona = new Persona('mimmo','rossi',40);
+ - p.messaggio();
+
+class Stampa{
+	dati:Array<string>;
+	constructor(dati:Array<string>){
+		this.dati = dati
+	}
+	esegui(){
+		this.forEach(function(valore){
+			console.log(valore);
+			}
+		);
+	}
+}
+
+- var s:Stampa = new Stampa(['val1','val2',',val3']);
+- s.esegui();
+
+class StampaSpecializzata extends Stampa{
+	intestazione:Array<string>;
+	constructor(intestazione:string[], dati:string[]){
+		super(dati);
+		this.intestazione = intestazione;
+	}
+	esegui(){
+		console.log(this.intestazione);
+		super.esegui();
+	}
+}
+
+- var intestazione:string[] = ['test'];
+- var dati:string[] = ['val1','val2',',val3'];
+- var specializzata: StampaSpecializzata = new StampaSpecializzata(intestazione,dati);
+- specializzata.esegui();
+
+
+------------------------------------------------
+DICHIARAZIONE VARIABILI
+- var nome:string;
+- let nome:string;
+
+function varTest(){  				function letTest(){
+	var x = 10;					let x = 10;
+	if(true){					if(true){
+		var x = 30;					let x = 30;
+		console.log(x);					console.log(x);
+	}						}
+	console.log(x);					console.log(x);
+}						}
+
+var -> SCOPE A LIVELLO DI FUNZIONE -> printa 30 e 30;
+let -> SCOPE A LIVELLO DI BLOCCO -> printa 30 e 10;
+
+var datix:string[] = ['val1','val2',',val3'];
+datix.forEach(function(val){console.log(val);});
+datix.forEach((val) => console.log(val));
+
+- var nome:string = 'max';
+- var cognome:string = 'rossi';
+TEMPLATE SCRIPT
+- var messaggio = 'Ciao ${nome} ${cognome}' 	NB: ' -> backtick ->alt 96
+
+
+-------------CREAZIONE PROGETTO ANGULAR---------------------------------
+
+- ng new NomeProgetto(y,n,css)
+- cd NomeProgetto
+- ng serve (compila il proj)
+- localhost:4200
+- visualstudiocode -> open folder NomeProgetto
+- creiamo un component -> ng generate component messaggio
+
+-----------------ANGULAR---------------------
+Struttura nidificata di componenti 
+
+-Che cos' un componente
+ -app
+	-app.component.ts -> descrive il funzionamento
+		BINDING BIDIREZIONALE -> view che aggiorna, back che aggiorna
+	-app.component.html -> view
+	-app.component.css -> formattazione
+	-app.component.spec.ts -> specifica il funzionamento di alcuni componenti
+	-app.module.ts -> modulo di configurazione(dipendenze) [referenziare i componenti(obbligatorio)]
+
+selector : identificativo che serve al linguaggio, per richiamare un componente
+
+DECORATOR ANGULAR(TYPESCRIPT)
+@Component({
+  selector: 'app-root', 		-> quale elemento del dom deve essere utilizzato
+  templateUrl: './app.component.html',  -> 
+  styleUrls: ['./app.component.css']
+})
+
+
+COMPONENT ANGULAR
+-> Elemento pricipale di angular 
+	3 elementi
+	-view .html
+	-funzionamento - typescript .ts
+	-formattazione .css
+
+->componente inizializzati prima che venga chiamato -> init chiamato una volta
+
+DIRETTIVA
+- *ngFor
+
+ @Input()nominativi:string[]; -> nominativi sara un valore preso come variabile
+
+
+REGOLA JS
+se creo funzioni di validazioni du form, o applicazioni monopagina
+devo creare funzioni che ritornano boolean (in questo caso false)
+
+backtik `
+
+routes -> serve per definire i percorsi
+RouterOutlet > componente placeholder, per posizionare il componente richiamato tramite la rotta
+RouterLink > direttiva(messaggi che vengono inviati a node js per configurare il progetto) > fa da chiamata
+
+
+
+BUILD PROGETTO PER DEPLOY
+
+ng build --prod
+
+PIPES -> strumenti per la formattazione html
+	si riconoscono perche hanno nomePipe:tipo formattazione
+
+	-Json 
+	-Lowercase
+	-Uppercase
+	-Date
+	-Currency
+	-Percent
+	-Decimal
+	-Slice
+
+DIRETTIVE -> sono dei messaggi che vengono inviati al node.js che servono per settare
+	delle caratteristiche o funzionalita all interno della pagina html
+	IF : 
+		<div *ngIf="valore1 < val2"></div>
+	NB: non permettere di mettere un else.. qundi bisogna  mettere la condizioe al
+		contrario per poter lanciare l else
+	
+	SWITCH
+		<div class="container" [ngSwitch] = "variabile">
+			<div *ngSwitchCase='Max'>..</div>
+			<div *ngSwitchCase='Max'>..</div>
+			<div *ngSwitchCase='Max'>..</div>
+			<div *ngSwitchDefault> <div>
+
+	NGSTYLE:
+	2 modi
+	1:	<div [style.background-color] = "'red'"; (colore puo essere dinamico)
+	2:	<div [ngStyle] = "{color: 'ivory', ...}">
+
+
+ANGULAR FORMS
+è un modulo interno con delgi automatismi
+
+FORMCONTROLS
+elemento di forms che serve per incapsulare gli input dei moduli
+definisce l input in modo da agganciarlo in modo diretto con il componente
+	SINGOLO CAMPO DI INPUT
+NB CAMPSULANO LO STATO DEL CONTROL
+	-> viene validato il dato 
+	STATI
+		->valid
+		->invalid
+		->pristine(mai stato istanziato)
+		->dirty
+		->errors
+
+let nomeControl = new FormControl("max")
+let nome = nomeControl.value;
+
+FORM GROUP (insieme di form-controll(con i loro tai))
+
+Validators
+Observers
+
+----------------------------------
+TEMPLATE ANGULAR -> è la pagina html del componente
+
+FORMCONTROLS
+utilizza ngForm, ngModel
+
+AppModuleTs : FormGrop
+FormsModule -> permette di utilizzare direttive come ngModel, NgForm
+ReactiveFormsModule -> formControl ngFormGroup
+
+
+INTERPOLAZIONE -> associazione tra componente e view (binding dinamico)
+
+
+
+DATA BINDING/INTERPOLAZIONE -> {{valore}}
+	asincrono
+	-bidirezionale (mi cambia sia il model che la view)
+		[(ngModel)] = 'x'
+
+
+PIPELINE -> utilizzta per contatenare una serie di operazioni da eseguire contemporaemente
+
+
+---------------------CONSOLE BASH GIT------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
